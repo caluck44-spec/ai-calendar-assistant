@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <!-- Blue gradient matching app theme -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2563eb"/>
+      <stop offset="50%" stop-color="#3b82f6"/>
+      <stop offset="100%" stop-color="#60a5fa"/>
+    </linearGradient>
+    <!-- Sparkle gradient -->
+    <linearGradient id="sparkGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#dbeafe"/>
+    </linearGradient>
+    <!-- Shadow filter for depth -->
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="8" stdDeviation="16" flood-color="#1e40af" flood-opacity="0.3"/>
+    </filter>
+    <filter id="innerGlow" x="-5%" y="-5%" width="110%" height="110%">
+      <feGaussianBlur stdDeviation="4"/>
+    </filter>
+  </defs>
+
+  <!-- Background: rounded square with blue gradient -->
+  <rect x="32" y="32" width="448" height="448" rx="112" ry="112" fill="url(#bgGrad)" filter="url(#shadow)"/>
+
+  <!-- Subtle inner highlight for depth -->
+  <rect x="48" y="48" width="416" height="416" rx="96" ry="96" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="2"/>
+
+  <!-- Calendar body (white, slightly transparent) -->
+  <g filter="url(#shadow)">
+    <!-- Calendar main body -->
+    <rect x="128" y="160" width="256" height="224" rx="24" ry="24" fill="#ffffff"/>
+
+    <!-- Calendar header bar (blue tinted) -->
+    <path d="M 128 184 Q 128 160 152 160 L 360 160 Q 384 160 384 184 L 384 224 L 128 224 Z" fill="#3b82f6"/>
+
+    <!-- Calendar binding rings (top tabs) -->
+    <rect x="176" y="136" width="16" height="48" rx="8" fill="#1e40af"/>
+    <rect x="320" y="136" width="16" height="48" rx="8" fill="#1e40af"/>
+
+    <!-- Calendar grid dots (representing dates) -->
+    <!-- Row 1 -->
+    <circle cx="172" cy="260" r="12" fill="#3b82f6"/>
+    <circle cx="232" cy="260" r="12" fill="#3b82f6"/>
+    <circle cx="292" cy="260" r="12" fill="#3b82f6"/>
+    <circle cx="352" cy="260" r="12" fill="#60a5fa"/>
+
+    <!-- Row 2 -->
+    <circle cx="172" cy="316" r="12" fill="#60a5fa"/>
+    <circle cx="232" cy="316" r="12" fill="#3b82f6"/>
+    <circle cx="292" cy="316" r="12" fill="#3b82f6"/>
+    <circle cx="352" cy="316" r="12" fill="#dbeafe"/>
+
+    <!-- Row 3 -->
+    <circle cx="172" cy="372" r="12" fill="#dbeafe"/>
+    <circle cx="232" cy="372" r="12" fill="#60a5fa"/>
+    <circle cx="292" cy="372" r="12" fill="#3b82f6"/>
+  </g>
+
+  <!-- AI Sparkle (top-right corner, overlapping calendar) -->
+  <g transform="translate(372, 116)">
+    <!-- Main 4-point star (sparkle) -->
+    <path d="
+      M 0 -44
+      Q 8 -12 44 0
+      Q 8 12 0 44
+      Q -8 12 -44 0
+      Q -8 -12 0 -44
+      Z
+    " fill="url(#sparkGrad)" filter="url(#shadow)"/>
+    <!-- Small sparkle accent -->
+    <path d="
+      M 28 -28
+      Q 34 -12 52 -8
+      Q 34 -4 28 12
+      Q 22 -4 4 -8
+      Q 22 -12 28 -28
+      Z
+    " fill="#ffffff" opacity="0.8"/>
+  </g>
+
+  <!-- Highlight dot on sparkle center -->
+  <circle cx="372" cy="116" r="6" fill="#ffffff" opacity="0.9"/>
+</svg>
