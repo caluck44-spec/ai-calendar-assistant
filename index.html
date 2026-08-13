@@ -1,0 +1,4291 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Calendar Assistant — 粘贴什么，我们都能整理好</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<link rel="shortcut icon" href="favicon.ico">
+<link rel="manifest" href="site.webmanifest">
+<meta name="apple-mobile-web-app-title" content="AI Calendar">
+<meta name="theme-color" content="#3b82f6">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #f5f8fc;
+    --bg-gradient-1: rgba(59, 130, 246, 0.08);
+    --bg-gradient-2: rgba(96, 165, 250, 0.06);
+    --bg-gradient-3: rgba(14, 165, 233, 0.04);
+    --card-bg: #ffffff;
+    --card-bg-hover: #f8fbff;
+    --text: #1e293b;
+    --text-secondary: #475569;
+    --text-tertiary: #94a3b8;
+    --border: #dbeafe;
+    --border-light: #f1f5f9;
+    --border-hover: #cbd5e1;
+    --accent: #3b82f6;
+    --accent-hover: #2563eb;
+    --accent-light: rgba(59, 130, 246, 0.08);
+    --accent-soft: #dbeafe;
+    --accent-gradient: linear-gradient(135deg, #2563eb 0%, #3b82f6 50%, #60a5fa 100%);
+    --accent-gradient-hover: linear-gradient(135deg, #1d4ed8 0%, #2563eb 50%, #3b82f6 100%);
+    --success: #10b981;
+    --success-gradient: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    --warning: #f59e0b;
+    --danger: #ef4444;
+    --purple: #0ea5e9;
+    --orange: #f97316;
+    --red: #ef4444;
+    --green: #10b981;
+    --blue: #3b82f6;
+    --teal: #06b6d4;
+    --pink: #ec4899;
+    --shadow-sm: 0 1px 3px rgba(30, 41, 59, 0.04), 0 1px 2px rgba(30, 41, 59, 0.02);
+    --shadow-md: 0 4px 20px rgba(59, 130, 246, 0.06), 0 2px 6px rgba(30, 41, 59, 0.03);
+    --shadow-lg: 0 12px 40px rgba(59, 130, 246, 0.10), 0 4px 12px rgba(30, 41, 59, 0.04);
+    --shadow-accent: 0 4px 16px rgba(59, 130, 246, 0.35);
+    --shadow-accent-hover: 0 8px 24px rgba(59, 130, 246, 0.45);
+    --shadow-success: 0 4px 16px rgba(16, 185, 129, 0.35);
+    --radius-sm: 10px;
+    --radius-md: 14px;
+    --radius-lg: 20px;
+    --radius-xl: 28px;
+    --glass-border: 1px solid rgba(255, 255, 255, 0.6);
+    --glass-blur: blur(20px);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0b1220;
+      --bg-gradient-1: rgba(59, 130, 246, 0.12);
+      --bg-gradient-2: rgba(96, 165, 250, 0.08);
+      --bg-gradient-3: rgba(14, 165, 233, 0.05);
+      --card-bg: #111a2e;
+      --card-bg-hover: #1a2740;
+      --text: #eef2f8;
+      --text-secondary: #94a3b8;
+      --text-tertiary: #64748b;
+      --border: #1e293b;
+      --border-light: #1a2740;
+      --border-hover: #334155;
+      --accent: #60a5fa;
+      --accent-hover: #3b82f6;
+      --accent-light: rgba(96, 165, 250, 0.12);
+      --accent-soft: rgba(96, 165, 250, 0.20);
+      --accent-gradient: linear-gradient(135deg, #60a5fa 0%, #3b82f6 50%, #2563eb 100%);
+      --accent-gradient-hover: linear-gradient(135deg, #2563eb 0%, #3b82f6 50%, #60a5fa 100%);
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.3);
+      --shadow-md: 0 4px 20px rgba(0,0,0,0.3);
+      --shadow-lg: 0 12px 40px rgba(0,0,0,0.4);
+      --shadow-accent: 0 4px 16px rgba(96, 165, 250, 0.30);
+      --glass-border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+  }
+
+  body {
+    font-family: "SF Pro Text", "SF Pro Display", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    background-image:
+      radial-gradient(ellipse at 0% 0%, var(--bg-gradient-1) 0%, transparent 45%),
+      radial-gradient(ellipse at 100% 0%, var(--bg-gradient-2) 0%, transparent 40%),
+      radial-gradient(ellipse at 50% 100%, var(--bg-gradient-3) 0%, transparent 50%);
+    background-attachment: fixed;
+    color: var(--text);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  .app-container {
+    display: flex;
+    min-height: 100vh;
+  }
+
+  /* ============ Sidebar ============ */
+  .sidebar {
+    width: 240px;
+    background: var(--card-bg);
+    border-right: 1px solid var(--border);
+    padding: 24px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 50;
+  }
+
+  .sidebar-section {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    padding: 16px 12px 8px;
+  }
+
+  .sidebar-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    user-select: none;
+    position: relative;
+  }
+
+  .sidebar-item:hover {
+    background: var(--border-light);
+    color: var(--text);
+  }
+
+  .sidebar-item.active {
+    background: var(--accent-gradient);
+    color: white;
+    box-shadow: var(--shadow-accent);
+    font-weight: 600;
+  }
+
+  .sidebar-item svg {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+  }
+
+  /* ============ Main content ============ */
+  .main-content {
+    flex: 1;
+    margin-left: 240px;
+    padding: 48px 40px;
+    display: flex;
+    justify-content: center;
+  }
+
+  .main-content:has(#page-dashboard.active) {
+    justify-content: flex-start;
+  }
+
+  .page {
+    width: 100%;
+    max-width: 720px;
+    display: none;
+    animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  #page-dashboard.page {
+    max-width: 100%;
+  }
+
+  .page.active { display: block; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ============ Home / Hero ============ */
+  .hero-section {
+    margin-bottom: 36px;
+    position: relative;
+  }
+
+  .hero-icon {
+    font-size: 44px;
+    margin-bottom: 10px;
+    display: inline-block;
+    filter: drop-shadow(0 4px 12px rgba(59, 130, 246, 0.3));
+  }
+
+  .hero-title {
+    font-size: 38px;
+    font-weight: 800;
+    letter-spacing: -1px;
+    margin-bottom: 6px;
+    background: var(--accent-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1.1;
+  }
+
+  .hero-subtitle {
+    font-size: 17px;
+    color: var(--text-secondary);
+    font-weight: 400;
+  }
+
+  /* ============ API Key warning ============ */
+  .warning-banner {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 18px;
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.10) 0%, rgba(249, 115, 22, 0.06) 100%);
+    border: 1px solid rgba(245, 158, 11, 0.25);
+    border-radius: var(--radius-md);
+    margin-bottom: 20px;
+    font-size: 14px;
+  }
+
+  .warning-banner .icon { color: var(--warning); font-size: 20px; }
+  .warning-banner button {
+    margin-left: auto;
+    padding: 7px 14px;
+    font-size: 12px;
+    font-weight: 600;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .warning-banner button:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    box-shadow: var(--shadow-sm);
+  }
+
+  /* ============ Input area ============ */
+  .input-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 4px;
+    box-shadow: var(--shadow-md);
+    margin-bottom: 16px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .input-card:focus-within {
+    border-color: var(--accent);
+    box-shadow: var(--shadow-lg), 0 0 0 3px var(--accent-light);
+  }
+
+  .input-card textarea {
+    width: 100%;
+    min-height: 220px;
+    padding: 18px;
+    background: transparent;
+    border: none;
+    outline: none;
+    font-family: inherit;
+    font-size: 16px;
+    color: var(--text);
+    resize: vertical;
+    line-height: 1.65;
+  }
+
+  .input-card textarea::placeholder { color: var(--text-tertiary); }
+
+  .input-footer {
+    display: flex;
+    align-items: center;
+    padding: 0 18px 14px;
+    gap: 12px;
+  }
+
+  .char-count {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    font-weight: 500;
+  }
+
+  .spacer { flex: 1; }
+
+  .btn-clear {
+    padding: 7px 14px;
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: all 0.2s;
+  }
+  .btn-clear:hover { background: var(--border-light); color: var(--text); }
+
+  .btn-primary {
+    padding: 11px 26px;
+    background: var(--accent-gradient);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: var(--shadow-accent);
+    letter-spacing: 0.3px;
+  }
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-accent-hover);
+  }
+  .btn-primary:active { transform: translateY(0); }
+  .btn-primary:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+
+  /* ============ Drop zone ============ */
+  .drop-zone {
+    border: 2px dashed var(--border);
+    border-radius: var(--radius-lg);
+    padding: 36px;
+    text-align: center;
+    margin-bottom: 20px;
+    transition: all 0.25s;
+    cursor: pointer;
+    background: var(--card-bg);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .drop-zone:hover, .drop-zone.dragover {
+    border-color: var(--accent);
+    background: var(--accent-light);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+  }
+
+  .drop-zone .icon {
+    font-size: 32px;
+    margin-bottom: 10px;
+    display: inline-block;
+    filter: drop-shadow(0 2px 8px rgba(59, 130, 246, 0.2));
+  }
+
+  .drop-zone .title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+
+  .drop-zone .sub {
+    font-size: 12px;
+    color: var(--text-tertiary);
+  }
+
+  /* ============ Summary header ============ */
+  .summary-header {
+    margin-bottom: 24px;
+  }
+
+  .summary-text {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 16px 18px;
+    background: linear-gradient(135deg, var(--accent-light) 0%, rgba(96, 165, 250, 0.05) 100%);
+    border: 1px solid rgba(59, 130, 246, 0.15);
+    border-radius: var(--radius-md);
+    font-size: 14px;
+    margin-bottom: 16px;
+    color: var(--text);
+  }
+
+  .summary-text .sparkle {
+    color: var(--accent);
+    font-size: 18px;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .stat-cards {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+
+  .stat-card {
+    padding: 18px 14px;
+    text-align: center;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .stat-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-md);
+  }
+
+  .stat-card .icon { font-size: 22px; margin-bottom: 8px; display: inline-block; }
+  .stat-card .num {
+    font-size: 24px;
+    font-weight: 800;
+    margin-bottom: 2px;
+    letter-spacing: -0.5px;
+  }
+  .stat-card .label {
+    font-size: 12px;
+    color: var(--text-secondary);
+    font-weight: 500;
+  }
+
+  .stat-card.calendar {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.06) 0%, rgba(14, 165, 233, 0.03) 100%);
+    border-color: rgba(59, 130, 246, 0.18);
+  }
+  .stat-card.calendar .num { color: var(--text); }
+
+  .stat-card.reminder {
+    background: linear-gradient(135deg, rgba(6, 182, 212, 0.06) 0%, rgba(14, 165, 233, 0.03) 100%);
+    border-color: rgba(6, 182, 212, 0.18);
+  }
+  .stat-card.reminder .num { color: var(--text); }
+
+  .stat-card.ignored {
+    background: linear-gradient(135deg, rgba(100, 116, 139, 0.06) 0%, rgba(100, 116, 139, 0.03) 100%);
+    border-color: rgba(100, 116, 139, 0.18);
+  }
+  .stat-card.ignored .num { color: var(--text); }
+
+  .stat-card.uncertain {
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.06) 0%, rgba(249, 115, 22, 0.03) 100%);
+    border-color: rgba(245, 158, 11, 0.18);
+  }
+  .stat-card.uncertain .num { color: var(--text); }
+
+  .confidence-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--text-secondary);
+  }
+
+  .confidence-bar {
+    flex: 1;
+    max-width: 140px;
+    height: 5px;
+    background: var(--border);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  .confidence-fill {
+    height: 100%;
+    background: var(--success-gradient);
+    border-radius: 3px;
+    transition: width 0.5s ease;
+  }
+
+  /* ============ Section headers ============ */
+  .section-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 16px;
+    font-weight: 700;
+    margin: 28px 0 14px;
+    color: var(--text);
+    letter-spacing: -0.2px;
+  }
+
+  .section-title .icon { font-size: 18px; }
+  .section-title .count {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    font-weight: 600;
+    background: var(--border-light);
+    padding: 2px 8px;
+    border-radius: 10px;
+  }
+
+  /* ============ Cards ============ */
+  .card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    margin-bottom: 12px;
+    overflow: hidden;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .card:hover {
+    box-shadow: var(--shadow-md);
+    border-color: var(--border-hover);
+  }
+
+  .card.disabled { opacity: 0.45; }
+
+  .card.uncertain {
+    border-color: rgba(245, 158, 11, 0.35);
+    box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.15), var(--shadow-sm);
+  }
+
+  .card-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 18px;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .card-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+    transition: transform 0.2s;
+  }
+
+  .card:hover .card-icon { transform: scale(1.05); }
+
+  .card-icon.blue { background: linear-gradient(135deg, rgba(59, 130, 246,0.12) 0%, rgba(59, 130, 246,0.06) 100%); color: var(--accent); }
+  .card-icon.red { background: linear-gradient(135deg, rgba(239,68,68,0.12) 0%, rgba(239,68,68,0.06) 100%); color: var(--red); }
+  .card-icon.purple { background: linear-gradient(135deg, rgba(14, 165, 233,0.12) 0%, rgba(14, 165, 233,0.06) 100%); color: var(--purple); }
+  .card-icon.green { background: linear-gradient(135deg, rgba(16,185,129,0.12) 0%, rgba(16,185,129,0.06) 100%); color: var(--green); }
+  .card-icon.orange { background: linear-gradient(135deg, rgba(249,115,22,0.12) 0%, rgba(249,115,22,0.06) 100%); color: var(--orange); }
+  .card-icon.teal { background: linear-gradient(135deg, rgba(6,182,212,0.12) 0%, rgba(6,182,212,0.06) 100%); color: var(--teal); }
+  .card-icon.pink { background: linear-gradient(135deg, rgba(14, 165, 233,0.12) 0%, rgba(14, 165, 233,0.06) 100%); color: var(--pink); }
+  .card-icon.gray { background: linear-gradient(135deg, rgba(100,116,139,0.12) 0%, rgba(100,116,139,0.06) 100%); color: var(--text-tertiary); }
+
+  .card-main {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .card-title {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 3px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--text);
+  }
+
+  .card-title-input {
+    font-size: 15px;
+    font-weight: 600;
+    width: 100%;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--text);
+    font-family: inherit;
+    padding: 0;
+  }
+
+  .card-meta {
+    font-size: 12px;
+    color: var(--text-secondary);
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .card-badges {
+    display: flex;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    padding: 4px 8px;
+    border-radius: 8px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+  }
+
+  .badge.warning {
+    background: rgba(245, 158, 11, 0.12);
+    color: var(--warning);
+  }
+  .badge.danger {
+    background: rgba(239, 68, 68, 0.12);
+    color: var(--danger);
+  }
+  .badge.purple {
+    background: rgba(14, 165, 233, 0.12);
+    color: var(--purple);
+  }
+
+  .card-toggle {
+    flex-shrink: 0;
+  }
+
+  .switch {
+    position: relative;
+    display: inline-block;
+    width: 40px;
+    height: 23px;
+  }
+  .switch input { opacity: 0; width: 0; height: 0; }
+  .slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: var(--border);
+    transition: .3s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 23px;
+  }
+  .slider:before {
+    position: absolute;
+    content: "";
+    height: 17px;
+    width: 17px;
+    left: 3px;
+    bottom: 3px;
+    background: white;
+    transition: .3s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 50%;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+  }
+  input:checked + .slider {
+    background: var(--accent-gradient);
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.35);
+  }
+  input:checked + .slider:before { transform: translateX(17px); }
+
+  .expand-btn {
+    color: var(--text-tertiary);
+    font-size: 14px;
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    flex-shrink: 0;
+    padding: 4px;
+  }
+  .expand-btn.open { transform: rotate(90deg); }
+
+  .card-body {
+    display: none;
+    padding: 0 18px 18px;
+    border-top: 1px solid var(--border);
+    animation: slideDown 0.25s ease;
+  }
+
+  .card-body.open { display: block; }
+
+  @keyframes slideDown {
+    from { opacity: 0; max-height: 0; }
+    to { opacity: 1; max-height: 600px; }
+  }
+
+  .form-row {
+    display: flex;
+    gap: 16px;
+    margin-top: 14px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .form-group {
+    flex: 1;
+    min-width: 140px;
+  }
+
+  .form-label {
+    font-size: 11px;
+    color: var(--text-secondary);
+    font-weight: 600;
+    margin-bottom: 5px;
+    display: block;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .form-input, .form-select, .form-textarea {
+    width: 100%;
+    padding: 9px 12px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 13px;
+    color: var(--text);
+    font-family: inherit;
+    outline: none;
+    transition: all 0.2s;
+  }
+
+  .form-input:focus, .form-select:focus, .form-textarea:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-light);
+    background: var(--card-bg);
+  }
+
+  .form-textarea {
+    resize: vertical;
+    min-height: 60px;
+  }
+
+  .seg-control {
+    display: flex;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 3px;
+    overflow: hidden;
+    width: fit-content;
+  }
+
+  .seg-btn {
+    padding: 6px 14px;
+    font-size: 12px;
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all 0.2s;
+    font-weight: 500;
+  }
+
+  .seg-btn.active {
+    background: var(--accent-gradient);
+    color: white;
+    box-shadow: 0 2px 6px rgba(59, 130, 246, 0.25);
+  }
+
+  .card-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 14px;
+  }
+
+  .btn-delete {
+    padding: 7px 13px;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--danger);
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .btn-delete:hover {
+    background: rgba(239, 68, 68, 0.08);
+    border-color: rgba(239, 68, 68, 0.3);
+  }
+
+  .btn-secondary {
+    padding: 8px 16px;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    border-radius: var(--radius-sm);
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .btn-secondary:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .source-text {
+    margin-top: 10px;
+    padding: 10px 12px;
+    background: var(--bg);
+    border-radius: 8px;
+    font-size: 12px;
+    color: var(--text-secondary);
+    border-left: 3px solid var(--accent);
+  }
+
+  .source-label {
+    font-size: 10px;
+    color: var(--text-tertiary);
+    margin-bottom: 4px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  /* ============ Ignored section ============ */
+  .ignored-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 16px;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    margin-bottom: 8px;
+    transition: all 0.2s;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .ignored-item:hover {
+    background: var(--card-bg-hover);
+    border-color: var(--border-hover);
+  }
+
+  .ignored-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, rgba(100,100,110,0.10) 0%, rgba(100,100,110,0.05) 100%);
+    color: var(--text-tertiary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+
+  .ignored-content { flex: 1; min-width: 0; }
+  .ignored-text {
+    font-size: 13px;
+    line-height: 1.45;
+    color: var(--text);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .ignored-meta {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    margin-top: 3px;
+  }
+
+  .ignored-actions {
+    display: none;
+    gap: 5px;
+    flex-shrink: 0;
+  }
+
+  .ignored-item:hover .ignored-actions { display: flex; }
+
+  .icon-btn {
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--card-bg);
+    color: var(--text-secondary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    transition: all 0.2s;
+  }
+  .icon-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: var(--accent-light);
+  }
+
+  /* ============ Bottom bar ============ */
+  .bottom-bar {
+    position: fixed;
+    bottom: 0;
+    left: 240px;
+    right: 0;
+    padding: 16px 40px;
+    background: var(--card-bg);
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    z-index: 10;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+  }
+
+  .success-toast {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--success);
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .bottom-bar .count-text {
+    font-size: 13px;
+    color: var(--text-secondary);
+    font-weight: 500;
+  }
+
+  .bottom-bar .spacer { flex: 1; }
+
+  .btn-create {
+    padding: 12px 26px;
+    background: var(--success-gradient);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: var(--shadow-success);
+    letter-spacing: 0.3px;
+  }
+  .btn-create:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(16, 185, 129, 0.45);
+  }
+  .btn-create:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
+
+  .import-menu {
+    position: absolute;
+    bottom: calc(100% + 8px);
+    right: 0;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-lg);
+    min-width: 260px;
+    overflow: hidden;
+    z-index: 20;
+    animation: menuFadeIn 0.2s ease;
+  }
+
+  @keyframes menuFadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .import-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    cursor: pointer;
+    transition: background 0.15s;
+    border-bottom: 1px solid var(--border-light);
+  }
+
+  .import-menu-item:last-child { border-bottom: none; }
+
+  .import-menu-item:hover {
+    background: var(--accent-light);
+  }
+
+  .import-menu-icon {
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+
+  .import-menu-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 2px;
+  }
+
+  .import-menu-desc {
+    font-size: 11px;
+    color: var(--text-secondary);
+  }
+
+  .main-content.has-bottom-bar { padding-bottom: 100px; }
+
+  /* ============ Settings page ============ */
+  .settings-section {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 24px;
+    margin-bottom: 20px;
+    box-shadow: var(--shadow-sm);
+    transition: box-shadow 0.2s;
+  }
+  .settings-section:hover { box-shadow: var(--shadow-md); }
+
+  .settings-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 18px;
+    color: var(--text);
+  }
+
+  .settings-item {
+    margin-bottom: 16px;
+  }
+
+  .settings-item:last-child { margin-bottom: 0; }
+
+  .settings-label {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-bottom: 6px;
+    font-weight: 500;
+  }
+
+  .api-input {
+    width: 100%;
+    padding: 10px 14px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 13px;
+    color: var(--text);
+    font-family: "SF Mono", Monaco, monospace;
+    outline: none;
+    transition: all 0.2s;
+  }
+
+  .api-input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-light);
+    background: var(--card-bg);
+  }
+
+  .api-status {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    margin-top: 8px;
+  }
+
+  .api-status .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+  }
+  .dot.green { background: var(--success); box-shadow: 0 0 8px rgba(16, 185, 129, 0.4); }
+  .dot.orange { background: var(--warning); box-shadow: 0 0 8px rgba(245, 158, 11, 0.4); }
+
+  .api-link {
+    margin-left: auto;
+    color: var(--accent);
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: 500;
+  }
+  .api-link:hover { text-decoration: underline; }
+
+  .temp-slider {
+    width: 100%;
+    margin: 8px 0;
+    accent-color: var(--accent);
+  }
+
+  .temp-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .temp-value {
+    font-weight: 700;
+    color: var(--accent);
+    font-size: 14px;
+  }
+
+  .temp-desc {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    margin-top: 4px;
+  }
+
+  .about-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border-light);
+    font-size: 13px;
+  }
+  .about-row:last-child { border-bottom: none; }
+  .about-row .label { color: var(--text-secondary); }
+  .about-row .value { font-weight: 500; }
+
+  /* ============ Loading overlay ============ */
+  .loading-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(13, 11, 26, 0.5);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+  }
+
+  .loading-overlay.active { display: flex; }
+
+  .loading-card {
+    background: var(--card-bg);
+    padding: 44px 52px;
+    border-radius: var(--radius-xl);
+    text-align: center;
+    box-shadow: var(--shadow-lg);
+    animation: popIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid var(--border);
+  }
+
+  @keyframes popIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+  }
+
+  .loading-ring {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 22px;
+    border: 3px solid var(--border);
+    border-top-color: var(--accent);
+    border-right-color: var(--purple);
+    border-radius: 50%;
+    animation: spin 0.9s linear infinite;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  .loading-text {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 4px;
+    color: var(--text);
+  }
+
+  .loading-sub {
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+
+  /* ============ History ============ */
+  .history-item {
+    padding: 16px 18px;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: var(--shadow-sm);
+  }
+  .history-item:hover {
+    background: var(--card-bg-hover);
+    border-color: var(--border-hover);
+    transform: translateX(4px);
+  }
+
+  .history-summary {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--text);
+  }
+
+  .history-meta {
+    display: flex;
+    gap: 14px;
+    font-size: 12px;
+    color: var(--text-secondary);
+  }
+
+  .history-meta span {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .history-date {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    margin-top: 6px;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 72px 20px;
+    color: var(--text-tertiary);
+  }
+
+  .empty-state .icon {
+    font-size: 56px;
+    margin-bottom: 14px;
+    opacity: 0.4;
+    display: inline-block;
+    filter: grayscale(0.3);
+  }
+
+  .empty-state .title {
+    font-size: 16px;
+    color: var(--text-secondary);
+    margin-bottom: 4px;
+    font-weight: 600;
+  }
+
+  .empty-state .sub {
+    font-size: 13px;
+  }
+
+  /* ============ Toast ============ */
+  .toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 14px 20px;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-lg);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    font-weight: 500;
+    z-index: 200;
+    transform: translateX(420px);
+    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .toast.show { transform: translateX(0); }
+  .toast.success { border-left: 4px solid var(--success); }
+  .toast.error { border-left: 4px solid var(--danger); }
+  .toast.info { border-left: 4px solid var(--accent); }
+
+  /* ============ Scrollbar ============ */
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--text-tertiary); }
+
+  .page-title {
+    font-size: 24px;
+    font-weight: 800;
+    margin-bottom: 22px;
+    letter-spacing: -0.5px;
+    color: var(--text);
+  }
+
+  /* ============ Dashboard ============ */
+  .dashboard-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 28px;
+  }
+  .dashboard-actions { display: flex; gap: 8px; }
+  .btn-link {
+    margin-left: auto;
+    padding: 5px 12px;
+    background: transparent;
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-link:hover {
+    background: var(--accent-light);
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.15);
+  }
+
+  .dashboard-loading {
+    text-align: center;
+    padding: 72px 20px;
+    color: var(--text-secondary);
+    font-size: 14px;
+  }
+  .dashboard-loading .spinner {
+    width: 36px; height: 36px;
+    border: 3px solid var(--border);
+    border-top-color: var(--accent);
+    border-right-color: var(--purple);
+    border-radius: 50%;
+    margin: 0 auto 14px;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .dashboard-error {
+    padding: 48px 20px;
+    text-align: center;
+    color: var(--danger);
+    font-size: 14px;
+  }
+
+  .stats-overview {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 18px;
+    margin-bottom: 28px;
+  }
+  .stat-block {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 24px 20px;
+    box-shadow: var(--shadow-sm);
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    min-width: 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .stat-block::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--accent-gradient);
+    opacity: 0;
+    transition: opacity 0.25s;
+  }
+  .stat-block:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+  }
+  .stat-block:hover::before { opacity: 1; }
+  .stat-block .stat-icon {
+    width: 44px; height: 44px;
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+    margin-bottom: 14px;
+  }
+  .stat-block .stat-icon.blue { background: linear-gradient(135deg, rgba(99,130,241,0.15) 0%, rgba(59, 130, 246,0.08) 100%); color: var(--accent); }
+  .stat-block .stat-icon.teal { background: linear-gradient(135deg, rgba(6,182,212,0.15) 0%, rgba(6,182,212,0.08) 100%); color: var(--teal); }
+  .stat-block .stat-icon.orange { background: linear-gradient(135deg, rgba(249,115,22,0.15) 0%, rgba(249,115,22,0.08) 100%); color: var(--orange); }
+  .stat-block .stat-icon.purple { background: linear-gradient(135deg, rgba(14, 165, 233,0.15) 0%, rgba(14, 165, 233,0.08) 100%); color: var(--purple); }
+  .stat-block .stat-num {
+    font-size: clamp(28px, 3vw, 40px);
+    font-weight: 800;
+    color: var(--text);
+    margin-bottom: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    letter-spacing: -1px;
+    line-height: 1.1;
+  }
+  .stat-block .stat-num .unit {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    margin-left: 4px;
+  }
+  .stat-block .stat-label {
+    font-size: 13px;
+    color: var(--text-secondary);
+    font-weight: 500;
+  }
+  .stat-block .stat-sub {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    margin-top: 4px;
+  }
+
+  .dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+    margin-bottom: 20px;
+  }
+  .dashboard-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 26px;
+    box-shadow: var(--shadow-sm);
+    margin-bottom: 0;
+    min-width: 0;
+    transition: box-shadow 0.25s;
+  }
+  .dashboard-card:hover { box-shadow: var(--shadow-md); }
+  .dashboard-card-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    letter-spacing: -0.2px;
+  }
+  .chart-container {
+    position: relative;
+    width: 100%;
+    height: clamp(220px, 30vh, 360px);
+    min-height: 220px;
+  }
+
+  .upcoming-list { display: flex; flex-direction: column; gap: 10px; }
+  .upcoming-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 13px 14px;
+    background: var(--border-light);
+    border-radius: var(--radius-sm);
+    transition: all 0.2s;
+    border: 1px solid transparent;
+  }
+  .upcoming-item:hover {
+    background: var(--accent-light);
+    border-color: rgba(59, 130, 246, 0.12);
+  }
+  .upcoming-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .upcoming-dot.red { background: var(--danger); box-shadow: 0 0 10px rgba(239,68,68,0.5); }
+  .upcoming-dot.orange { background: var(--orange); box-shadow: 0 0 10px rgba(249,115,22,0.4); }
+  .upcoming-dot.green { background: var(--success); box-shadow: 0 0 10px rgba(16,185,129,0.4); }
+  .upcoming-main { flex: 1; min-width: 0; }
+  .upcoming-title { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 2px; }
+  .upcoming-meta { font-size: 12px; color: var(--text-secondary); }
+
+  .insight-content {
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.8;
+    white-space: pre-wrap;
+  }
+  .insight-content.loading { color: var(--text-tertiary); }
+
+  @media (max-width: 1200px) {
+    .stats-overview { grid-template-columns: repeat(4, 1fr); }
+    .dashboard-grid { grid-template-columns: 1fr 1fr; }
+  }
+
+  @media (max-width: 900px) {
+    .main-content { padding: 28px; }
+    .stats-overview { grid-template-columns: repeat(2, 1fr); }
+    .dashboard-grid { grid-template-columns: 1fr; }
+  }
+
+  @media (max-width: 768px) {
+    .sidebar { width: 60px; padding: 16px 8px; }
+    .sidebar-item span, .sidebar-section { display: none; }
+    .sidebar-item { justify-content: center; padding: 10px; }
+    .main-content { margin-left: 60px; padding: 20px; }
+    .bottom-bar { left: 60px; }
+    .stats-overview { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .stat-block { padding: 16px 14px; }
+    .stat-block .stat-num { font-size: 24px; }
+    .dashboard-card { padding: 18px; }
+    .chart-container { height: 220px; }
+    .hero-title { font-size: 28px; }
+  }
+
+  @media (min-width: 1600px) {
+    .stats-overview { gap: 22px; }
+    .stat-block { padding: 28px 22px; }
+    .dashboard-grid { gap: 24px; }
+    .dashboard-card { padding: 30px; }
+  }
+
+</style>
+</head>
+<body>
+
+<div class="app-container">
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div style="padding: 8px 10px 16px; display: flex; align-items: center; gap: 10px;">
+      <span style="font-size: 24px;">📅</span>
+      <span style="font-weight: 700; font-size: 16px;">AI Calendar</span>
+    </div>
+
+    <div class="sidebar-section">主菜单</div>
+    <div class="sidebar-item active" onclick="switchPage('home', this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+        <polyline points="9 22 9 12 15 12 15 22"/>
+      </svg>
+      首页
+    </div>
+    <div class="sidebar-item" onclick="switchPage('analysis', this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/>
+      </svg>
+      分析结果
+    </div>
+    <div class="sidebar-item" onclick="switchPage('history', this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"/>
+        <polyline points="12 6 12 12 16 14"/>
+      </svg>
+      历史记录
+    </div>
+    <div class="sidebar-item" onclick="switchPage('dashboard', this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 3v18h18"/>
+        <path d="M18 17V9"/>
+        <path d="M13 17V5"/>
+        <path d="M8 17v-3"/>
+      </svg>
+      效率看板
+    </div>
+
+    <div class="sidebar-section">其他</div>
+    <div class="sidebar-item" onclick="switchPage('settings', this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="3"/>
+        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+      </svg>
+      设置
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content" id="mainContent">
+
+    <!-- Home Page -->
+    <div class="page active" id="page-home">
+      <div class="hero-section">
+        <div class="hero-icon">✨📅</div>
+        <h1 class="hero-title">AI Calendar</h1>
+        <p class="hero-subtitle">粘贴什么，我们都能整理好你的时间。</p>
+      </div>
+
+      <div class="warning-banner" id="apiWarning">
+        <span class="icon">🔑</span>
+        <span>请先在设置中配置 DeepSeek API Key</span>
+        <button onclick="switchPage('settings', document.querySelector('.sidebar-item:nth-child(5)'))">去设置</button>
+      </div>
+
+      <div class="input-card">
+        <textarea id="inputText" placeholder="粘贴任何东西...&#10;&#10;比如：&#10;• 明天下午3点和张总开会&#10;• 下周五飞上海 MU5101&#10;• 记得交电费&#10;• 7月20日上午10点牙科复诊"></textarea>
+        <div class="input-footer">
+          <span class="char-count" id="charCount">0 字</span>
+          <div class="spacer"></div>
+          <button class="btn-clear" id="btnClear" onclick="clearInput()">清空</button>
+          <button class="btn-primary" id="btnAnalyze" onclick="analyzeText()" disabled>
+            <span>✨</span>
+            <span>分析</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="drop-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
+        <input type="file" id="fileInput" style="display:none" accept=".pdf,.txt,.png,.jpg,.jpeg,.heic,.tiff" onchange="handleFileSelect(event)">
+        <div class="icon">📄</div>
+        <div class="title">拖拽图片或 PDF 到这里</div>
+        <div class="sub">自动 OCR 识别文字</div>
+      </div>
+    </div>
+
+    <!-- Analysis Page -->
+    <div class="page" id="page-analysis">
+      <h2 class="page-title">分析结果</h2>
+
+      <div id="analysisContent">
+        <div class="empty-state">
+          <div class="icon">🔍</div>
+          <div class="title">暂无分析结果</div>
+          <div class="sub">在首页粘贴文字开始分析</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- History Page -->
+    <div class="page" id="page-history">
+      <h2 class="page-title">历史记录</h2>
+      <div id="historyList">
+        <div class="empty-state">
+          <div class="icon">🕐</div>
+          <div class="title">暂无历史记录</div>
+          <div class="sub">你的分析历史会保存在这里</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dashboard Page -->
+    <div class="page" id="page-dashboard">
+      <div class="dashboard-header">
+        <h2 class="page-title">效率看板</h2>
+        <div class="dashboard-actions">
+          <button class="btn-secondary" onclick="refreshDashboard()">刷新</button>
+        </div>
+      </div>
+      <div id="dashboardLoading" class="dashboard-loading">
+        <div class="spinner"></div>
+        <div>正在读取日历和提醒事项...</div>
+      </div>
+      <div id="dashboardContent" style="display:none;">
+        <!-- 今日概览 -->
+        <div class="stats-overview" id="statsOverview"></div>
+
+        <!-- 七日趋势 + 任务分布 -->
+        <div class="dashboard-grid">
+          <div class="dashboard-card">
+            <div class="dashboard-card-title">七日完成率趋势</div>
+            <div class="chart-container"><canvas id="trendChart"></canvas></div>
+          </div>
+          <div class="dashboard-card">
+            <div class="dashboard-card-title">任务分类分布</div>
+            <div class="chart-container"><canvas id="categoryChart"></canvas></div>
+          </div>
+        </div>
+
+        <!-- 任务时间分布 -->
+        <div class="dashboard-card">
+          <div class="dashboard-card-title">每日任务量（已完成 / 待办）</div>
+          <div class="chart-container"><canvas id="dailyChart"></canvas></div>
+        </div>
+
+        <!-- 即将到期 + AI 洞察 -->
+        <div class="dashboard-grid">
+          <div class="dashboard-card">
+            <div class="dashboard-card-title">优先关注</div>
+            <div id="upcomingList" class="upcoming-list"></div>
+          </div>
+          <div class="dashboard-card">
+            <div class="dashboard-card-title">
+              效率洞察
+              <button class="btn-link" onclick="generateInsight()">生成</button>
+            </div>
+            <div id="insightContent" class="insight-content">点击「生成」让 AI 分析本周效率</div>
+          </div>
+        </div>
+      </div>
+      <div id="dashboardError" class="dashboard-error" style="display:none;"></div>
+    </div>
+
+    <!-- Settings Page -->
+    <div class="page" id="page-settings">
+      <h2 class="page-title">设置</h2>
+
+      <div class="settings-section">
+        <div class="settings-title">
+          <span>🔑</span>
+          <span>DeepSeek API</span>
+        </div>
+        <div class="settings-item">
+          <div class="settings-label">API Key</div>
+          <input type="password" class="api-input" id="apiKeyInput" placeholder="sk-xxxxxxxxxxxxxxxxxxxxxxxx" oninput="saveApiKey()">
+          <div class="api-status">
+            <span class="dot orange" id="apiDot"></span>
+            <span id="apiStatus">未配置</span>
+            <a class="api-link" href="https://platform.deepseek.com/api_keys" target="_blank">获取 API Key →</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <div class="settings-title">
+          <span>🤖</span>
+          <span>AI 设置</span>
+        </div>
+        <div class="settings-item">
+          <div class="temp-row">
+            <span class="settings-label" style="margin-bottom:0">Temperature（创意度）</span>
+            <span class="temp-value" id="tempValue">0.3</span>
+          </div>
+          <input type="range" class="temp-slider" id="tempSlider" min="0" max="2" step="0.1" value="0.3" oninput="updateTemp()">
+          <div class="temp-desc">数值越低越准确确定，数值越高越有创意。建议 0.3 用于日程分析。</div>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <div class="settings-title">
+          <span>ℹ️</span>
+          <span>关于</span>
+        </div>
+        <div class="about-row">
+          <span class="label">应用名称</span>
+          <span class="value">AI Calendar Assistant</span>
+        </div>
+        <div class="about-row">
+          <span class="label">版本</span>
+          <span class="value">1.0 (Web)</span>
+        </div>
+        <div class="about-row">
+          <span class="label">说明</span>
+          <span class="value">粘贴文字 · 自动整理提醒事项</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom bar (only visible on analysis page) -->
+    <div class="bottom-bar" id="bottomBar" style="display: none;">
+      <span id="successToast" class="success-toast" style="display:none;">
+        ✅ 已导入到提醒事项！
+      </span>
+      <span class="count-text" id="bottomCount">0 个事件 · 0 个提醒</span>
+      <div class="spacer"></div>
+      <button class="btn-create" id="btnCreateAll" onclick="openInCalendar()" disabled>
+        <span>⚡</span>
+        <span id="btnImportText">一键导出日历文件</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Loading overlay -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="loading-card">
+    <div class="loading-ring"></div>
+    <div class="loading-text">AI 分析中...</div>
+    <div class="loading-sub">正在理解你的文字</div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast">
+  <span id="toastIcon">✅</span>
+  <span id="toastText"></span>
+</div>
+
+<script>
+// ============================================
+// State
+// ============================================
+let currentResult = null;
+let history = JSON.parse(localStorage.getItem('ai_calendar_history') || '[]');
+let apiKey = localStorage.getItem('deepseek_api_key') || '';
+let temperature = parseFloat(localStorage.getItem('ai_temperature') || '0.3');
+const isLocalMacMode = ['localhost', '127.0.0.1'].includes(window.location.hostname);
+
+// 解析 URL 参数，支持 ?page=dashboard 直接跳转到看板
+(function parseUrlParam() {
+  const params = new URLSearchParams(window.location.search);
+  const targetPage = params.get('page');
+  if (targetPage === 'dashboard') {
+    // 延迟切换，确保 DOM 加载完成
+    setTimeout(() => {
+      const dashboardItem = Array.from(document.querySelectorAll('.sidebar-item'))
+        .find(item => item.getAttribute('onclick') && item.getAttribute('onclick').includes("'dashboard'"));
+      if (dashboardItem) {
+        switchPage('dashboard', dashboardItem);
+      }
+    }, 100);
+  }
+})();
+
+// ============================================
+// Page switching
+// ============================================
+function switchPage(page, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  if (el) el.classList.add('active');
+
+  const bottomBar = document.getElementById('bottomBar');
+  const mainContent = document.getElementById('mainContent');
+  if (page === 'analysis') {
+    bottomBar.style.display = 'flex';
+    mainContent.classList.add('has-bottom-bar');
+    updateBottomCount();
+  } else {
+    bottomBar.style.display = 'none';
+    mainContent.classList.remove('has-bottom-bar');
+  }
+
+  if (page === 'history') {
+    renderHistory();
+  }
+  if (page === 'settings') {
+    document.getElementById('apiKeyInput').value = apiKey;
+    updateApiStatus();
+    document.getElementById('tempSlider').value = temperature;
+    document.getElementById('tempValue').textContent = temperature.toFixed(1);
+  }
+}
+
+// ============================================
+// Input
+// ============================================
+document.getElementById('inputText').addEventListener('input', function() {
+  document.getElementById('charCount').textContent = this.value.length + ' 字';
+  document.getElementById('btnAnalyze').disabled = !this.value.trim() || !apiKey;
+  document.getElementById('btnClear').style.opacity = this.value ? '1' : '0';
+});
+
+function clearInput() {
+  document.getElementById('inputText').value = '';
+  document.getElementById('inputText').dispatchEvent(new Event('input'));
+}
+
+// ============================================
+// API Key
+// ============================================
+function saveApiKey() {
+  apiKey = document.getElementById('apiKeyInput').value.trim();
+  localStorage.setItem('deepseek_api_key', apiKey);
+  updateApiStatus();
+  document.getElementById('btnAnalyze').disabled = !document.getElementById('inputText').value.trim() || !apiKey;
+}
+
+function updateApiStatus() {
+  const dot = document.getElementById('apiDot');
+  const text = document.getElementById('apiStatus');
+  const warning = document.getElementById('apiWarning');
+  if (apiKey) {
+    dot.className = 'dot green';
+    text.textContent = '已配置';
+    warning.style.display = 'none';
+  } else {
+    dot.className = 'dot orange';
+    text.textContent = '未配置';
+    warning.style.display = 'flex';
+  }
+}
+
+function updateTemp() {
+  temperature = parseFloat(document.getElementById('tempSlider').value);
+  document.getElementById('tempValue').textContent = temperature.toFixed(1);
+  localStorage.setItem('ai_temperature', temperature.toString());
+}
+
+// Init
+updateApiStatus();
+
+// ============================================
+// Drop zone
+// ============================================
+const dropZone = document.getElementById('dropZone');
+dropZone.addEventListener('dragover', function(e) {
+  e.preventDefault();
+  this.classList.add('dragover');
+});
+dropZone.addEventListener('dragleave', function() {
+  this.classList.remove('dragover');
+});
+dropZone.addEventListener('drop', function(e) {
+  e.preventDefault();
+  this.classList.remove('dragover');
+  const files = e.dataTransfer.files;
+  if (files.length > 0) {
+    handleFile(files[0]);
+  }
+});
+
+function handleFileSelect(e) {
+  if (e.target.files.length > 0) {
+    handleFile(e.target.files[0]);
+  }
+}
+
+function handleFile(file) {
+  const reader = new FileReader();
+  if (file.type.startsWith('image/')) {
+    reader.onload = function(e) {
+      showToast('info', '图片 OCR 功能需要在支持的浏览器中使用，已复制文件路径');
+    };
+    reader.readAsDataURL(file);
+    showToast('info', '网页版暂不支持 OCR，请先将文字粘贴到输入框');
+  } else if (file.type === 'application/pdf') {
+    showToast('info', '网页版暂不支持 PDF 提取，请先将文字粘贴到输入框');
+  } else {
+    reader.onload = function(e) {
+      document.getElementById('inputText').value = e.target.result;
+      document.getElementById('inputText').dispatchEvent(new Event('input'));
+      showToast('success', '文件已加载');
+    };
+    reader.readAsText(file);
+  }
+}
+
+// ============================================
+// AI Analysis
+// ============================================
+async function analyzeText() {
+  const text = document.getElementById('inputText').value.trim();
+  if (!text) return;
+  if (!apiKey) {
+    showToast('error', '请先配置 API Key');
+    switchPage('settings');
+    return;
+  }
+
+  showLoading();
+
+  try {
+    const result = await callDeepSeekAPI(text);
+    currentResult = result;
+    saveToHistory(text, result);
+    renderAnalysis(result);
+    switchPage('analysis', document.querySelectorAll('.sidebar-item')[1]);
+    hideLoading();
+    showToast('success', '分析完成！');
+  } catch (err) {
+    hideLoading();
+    showToast('error', '分析失败：' + err.message);
+    console.error(err);
+  }
+}
+
+async function callDeepSeekAPI(text) {
+  const systemPrompt = buildSystemPrompt();
+  const userPrompt = `请分析以下文字并整理成日历事件、提醒事项和被忽略的信息。
+
+需要分析的文字：
+---
+${text}
+---
+
+请只返回 JSON 格式的结果，不要任何解释。`;
+
+  const response = await fetch('https://api.deepseek.com/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + apiKey
+    },
+    body: JSON.stringify({
+      model: 'deepseek-chat',
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userPrompt }
+      ],
+      temperature: temperature,
+      response_format: { type: 'json_object' },
+      max_tokens: 4096
+    })
+  });
+
+  if (!response.ok) {
+    const errText = await response.text();
+    if (response.status === 401) throw new Error('API Key 无效，请检查你的密钥');
+    if (response.status === 429) throw new Error('请求过于频繁，请稍后再试');
+    throw new Error('HTTP ' + response.status + ' - ' + errText.slice(0, 200));
+  }
+
+  const data = await response.json();
+  const content = data.choices[0]?.message?.content || '';
+
+  let parsed;
+  try {
+    parsed = JSON.parse(content);
+  } catch(e) {
+    const match = content.match(/\{[\s\S]*\}/);
+    if (match) {
+      parsed = JSON.parse(match[0]);
+    } else {
+      throw new Error('无法解析 AI 返回结果');
+    }
+  }
+
+  return normalizeResult(parsed, text);
+}
+
+function buildSystemPrompt() {
+  const today = new Date();
+  const dateStr = today.toISOString().split('T')[0];
+
+  return `你是一个 AI 日历助手。你的工作是分析非结构化文本，将其整理成日历事件、提醒事项和被忽略的信息。
+
+## 你的职责
+
+1. 理解文本内容，而不仅仅是提取日期。判断每条信息的意图和类别。
+2. 决定哪些属于：
+   - **日历事件**：会议、航班、医生预约、聚餐、项目截止日、社交活动
+   - **提醒事项**：交账单、买东西、回复某人、待办任务
+   - **被忽略**：问候、闲聊、广告、随机对话、无行动价值的信息
+3. 智能推断缺失信息：
+   - "明天下午" → 14:00
+   - "今晚" → 19:00
+   - "上午" → 09:00
+   - "中午"/"午饭" → 12:00
+   - "晚上" → 19:00
+   - "周末" → 全天
+   - "月底" → 当月最后一天
+   - 没有结束时间 → 默认 1 小时
+   - 没有年份 → 使用当前年份
+4. 绝不编造。如果置信度低于 80%，标记为不确定。
+5. 检测潜在冲突（时间重叠）和重复（同一事件多次提及）。
+6. 建议合适的提醒：
+   - 会议：提前 10 分钟
+   - 航班：提前 3 小时
+   - 医院/医生：提前 1 小时
+   - 截止日期：提前 2 小时
+   - 生日：当天 09:00
+
+## 输出格式
+
+只返回有效的 JSON。不要解释。不要 Markdown。
+
+JSON 结构：
+{
+  "events": [
+    {
+      "title": "事件标题",
+      "category": "meeting|deadline|travel|appointment|reminder|task|birthday|other",
+      "destination": "calendar|reminder|ignore",
+      "date": "YYYY-MM-DD",
+      "startTime": "YYYY-MM-DDTHH:mm:ss",
+      "endTime": "YYYY-MM-DDTHH:mm:ss",
+      "isAllDay": false,
+      "location": "地点，没有就空字符串",
+      "participants": ["人名1", "人名2"],
+      "description": "描述，没有就空字符串",
+      "sourceText": "提取自原文的片段",
+      "confidence": 0.95,
+      "reminderMinutesBefore": 10,
+      "isUncertain": false
+    }
+  ],
+  "reminders": [
+    {
+      "title": "任务标题",
+      "dueDate": "YYYY-MM-DD",
+      "priority": "none|low|medium|high",
+      "reminderTime": "YYYY-MM-DDTHH:mm:ss",
+      "notes": "备注",
+      "sourceText": "原文片段",
+      "confidence": 0.9,
+      "isUncertain": false
+    }
+  ],
+  "ignored_information": [
+    {
+      "content": "被忽略的内容",
+      "reason": "为什么被忽略",
+      "category": "greeting|advertisement|smalltalk|conversation|information"
+    }
+  ],
+  "summary": "一句话总结分析了什么",
+  "confidence": 0.92
+}
+
+## 重要规则
+
+- 提取所有事件，不要遗漏。
+- 如果某件事既是日历事件又需要提醒（如截止日期），放在 events 里，destination 是 "calendar"，并设置 reminderMinutesBefore。
+- 如果主要是任务性质（买牛奶、交账单、回复 Kevin），放在 reminders 里。
+- 当前日期作为参考：${dateStr}
+- 日期格式：YYYY-MM-DD。
+- 时间格式：YYYY-MM-DDTHH:mm:ss（ISO 8601 无时区）。
+- 推断不出日期就设为 null。
+- confidence 是 0 到 1 之间的值。
+- confidence < 0.8 时 isUncertain 设为 true。
+- 没有某类项目就返回空数组 []。
+- 用中文写 summary。`;
+}
+
+function normalizeResult(data, rawText) {
+  const events = (data.events || []).map((e, i) => ({
+    id: 'evt_' + i + '_' + Date.now(),
+    title: e.title || '未命名事件',
+    category: e.category || 'other',
+    destination: e.destination || 'calendar',
+    date: e.date || null,
+    startTime: e.startTime || null,
+    endTime: e.endTime || null,
+    isAllDay: e.isAllDay || false,
+    location: e.location || '',
+    participants: e.participants || [],
+    description: e.description || '',
+    sourceText: e.sourceText || '',
+    confidence: e.confidence != null ? e.confidence : 1,
+    reminderMinutesBefore: e.reminderMinutesBefore != null ? e.reminderMinutesBefore : 10,
+    isUncertain: e.isUncertain || (e.confidence != null && e.confidence < 0.8) || false,
+    isEnabled: true,
+    isExpanded: false,
+    hasConflict: false,
+    isDuplicate: false
+  }));
+
+  const reminders = (data.reminders || []).map((r, i) => ({
+    id: 'rem_' + i + '_' + Date.now(),
+    title: r.title || '未命名提醒',
+    dueDate: r.dueDate || null,
+    priority: r.priority || 'none',
+    reminderTime: r.reminderTime || null,
+    notes: r.notes || '',
+    sourceText: r.sourceText || '',
+    confidence: r.confidence != null ? r.confidence : 1,
+    isUncertain: r.isUncertain || (r.confidence != null && r.confidence < 0.8) || false,
+    isEnabled: true,
+    isExpanded: false
+  }));
+
+  const ignored = (data.ignored_information || data.ignoredInformation || []).map((ig, i) => ({
+    id: 'ign_' + i + '_' + Date.now(),
+    content: ig.content || '',
+    reason: ig.reason || '',
+    category: ig.category || 'information'
+  }));
+
+  detectConflicts(events);
+  detectDuplicates(events);
+
+  return {
+    events,
+    reminders,
+    ignored_information: ignored,
+    summary: data.summary || 'AI 已分析文本',
+    confidence: data.confidence != null ? data.confidence : 0.9,
+    rawText: rawText
+  };
+}
+
+function detectConflicts(events) {
+  for (let i = 0; i < events.length; i++) {
+    for (let j = i + 1; j < events.length; j++) {
+      const a = events[i], b = events[j];
+      if (!a.startTime || !b.startTime) continue;
+      const aStart = new Date(a.startTime).getTime();
+      const aEnd = a.endTime ? new Date(a.endTime).getTime() : aStart + 3600000;
+      const bStart = new Date(b.startTime).getTime();
+      const bEnd = b.endTime ? new Date(b.endTime).getTime() : bStart + 3600000;
+      if (aStart < bEnd && bStart < aEnd) {
+        a.hasConflict = true;
+        b.hasConflict = true;
+      }
+    }
+  }
+}
+
+function detectDuplicates(events) {
+  for (let i = 0; i < events.length; i++) {
+    for (let j = i + 1; j < events.length; j++) {
+      if (events[i].title.toLowerCase() === events[j].title.toLowerCase() &&
+          events[i].date && events[j].date && events[i].date === events[j].date) {
+        events[i].isDuplicate = true;
+        events[j].isDuplicate = true;
+      }
+    }
+  }
+}
+
+// ============================================
+// Render Analysis
+// ============================================
+function renderAnalysis(result) {
+  const container = document.getElementById('analysisContent');
+
+  const calendarEvents = result.events.filter(e => e.destination === 'calendar');
+  const reminderEvents = result.events.filter(e => e.destination === 'reminder');
+  const totalReminders = result.reminders.length + reminderEvents.length;
+  const uncertainCount = result.events.filter(e => e.isUncertain).length +
+                         result.reminders.filter(r => r.isUncertain).length;
+  const confPct = Math.round(result.confidence * 100);
+
+  let html = `
+    <div class="summary-header">
+      <div class="summary-text">
+        <span class="sparkle">✨</span>
+        <span>${escapeHtml(result.summary)}</span>
+      </div>
+      <div class="stat-cards">
+        <div class="stat-card calendar">
+          <div class="icon">📅</div>
+          <div class="num">${calendarEvents.length}</div>
+          <div class="label">日历事件</div>
+        </div>
+        <div class="stat-card reminder">
+          <div class="icon">🔔</div>
+          <div class="num">${totalReminders}</div>
+          <div class="label">提醒事项</div>
+        </div>
+        <div class="stat-card ignored">
+          <div class="icon">🙈</div>
+          <div class="num">${result.ignored_information.length}</div>
+          <div class="label">已忽略</div>
+        </div>
+        ${uncertainCount > 0 ? `
+        <div class="stat-card uncertain">
+          <div class="icon">❓</div>
+          <div class="num">${uncertainCount}</div>
+          <div class="label">不确定</div>
+        </div>` : `
+        <div class="stat-card">
+          <div class="icon">
+            <div class="confidence-bar" style="width:40px;height:40px;display:flex;align-items:center;justify-content:center;">
+              <span style="font-size:11px;font-weight:600;color:var(--text)">${confPct}%</span>
+            </div>
+          </div>
+          <div class="num" style="font-size:12px;margin-top:4px;">置信度</div>
+          <div class="label" style="font-size:11px;">AI 确信度</div>
+        </div>`}
+      </div>
+    </div>
+  `;
+
+  // Calendar events
+  if (calendarEvents.length > 0) {
+    html += `<div class="section-title">
+      <span class="icon" style="color: var(--blue);">📅</span>
+      日历事件
+      <span class="count">${calendarEvents.length}</span>
+    </div>`;
+    calendarEvents.forEach((event, idx) => {
+      html += renderEventCard(event, 'calendar');
+    });
+  }
+
+  // Reminder events (from events list)
+  if (reminderEvents.length > 0) {
+    html += `<div class="section-title">
+      <span class="icon" style="color: var(--orange);">🔔</span>
+      提醒事项（来自事件）
+      <span class="count">${reminderEvents.length}</span>
+    </div>`;
+    reminderEvents.forEach(event => {
+      html += renderEventCard(event, 'reminder');
+    });
+  }
+
+  // Standalone reminders
+  if (result.reminders.length > 0) {
+    html += `<div class="section-title">
+      <span class="icon" style="color: var(--orange);">✅</span>
+      待办提醒
+      <span class="count">${result.reminders.length}</span>
+    </div>`;
+    result.reminders.forEach(reminder => {
+      html += renderReminderCard(reminder);
+    });
+  }
+
+  // Ignored
+  if (result.ignored_information.length > 0) {
+    html += `<div class="section-title">
+      <span class="icon" style="color: var(--text-tertiary);">🙈</span>
+      忽略的信息
+      <span class="count">${result.ignored_information.length}</span>
+    </div>`;
+    result.ignored_information.forEach(item => {
+      html += renderIgnoredItem(item);
+    });
+  }
+
+  container.innerHTML = html;
+  updateBottomCount();
+}
+
+function getCategoryIcon(cat) {
+  const map = {
+    meeting: '👥',
+    deadline: '🚩',
+    travel: '✈️',
+    appointment: '🏥',
+    reminder: '⏰',
+    task: '📋',
+    birthday: '🎁',
+    other: '📌'
+  };
+  return map[cat] || '📌';
+}
+
+function getCategoryColor(cat) {
+  const map = {
+    meeting: 'blue',
+    deadline: 'red',
+    travel: 'purple',
+    appointment: 'green',
+    reminder: 'orange',
+    task: 'teal',
+    birthday: 'pink',
+    other: 'gray'
+  };
+  return map[cat] || 'gray';
+}
+
+function getCategoryLabel(cat) {
+  const map = {
+    meeting: '会议',
+    deadline: '截止',
+    travel: '出行',
+    appointment: '预约',
+    reminder: '提醒',
+    task: '任务',
+    birthday: '生日',
+    other: '其他'
+  };
+  return map[cat] || '其他';
+}
+
+function renderEventCard(event, dest) {
+  const icon = getCategoryIcon(event.category);
+  const colorClass = getCategoryColor(event.category);
+  const confPct = Math.round(event.confidence * 100);
+  const dateStr = event.date ? formatDate(event.date) : '无日期';
+  const timeStr = event.isAllDay ? '全天' :
+    (event.startTime ? formatTime(event.startTime) + (event.endTime ? ' - ' + formatTime(event.endTime) : '') : '无时间');
+
+  return `
+    <div class="card ${event.isUncertain ? 'uncertain' : ''} ${!event.isEnabled ? 'disabled' : ''}" data-id="${event.id}" data-type="event">
+      <div class="card-header" onclick="toggleCard(this)">
+        <div class="card-icon ${colorClass}">${icon}</div>
+        <div class="card-main">
+          <div class="card-title">${escapeHtml(event.title)}</div>
+          <div class="card-meta">
+            <span>📆 ${dateStr}</span>
+            <span>⏰ ${timeStr}</span>
+            ${event.location ? `<span>📍 ${escapeHtml(event.location)}</span>` : ''}
+          </div>
+        </div>
+        <div class="card-badges">
+          ${event.isUncertain ? '<span class="badge warning">❓ 不确定</span>' : ''}
+          ${event.hasConflict ? '<span class="badge danger">⚠️ 冲突</span>' : ''}
+          ${event.isDuplicate ? '<span class="badge purple">📄 重复</span>' : ''}
+          <span class="badge" style="background: rgba(${confPct > 80 ? '48,209,88' : confPct > 50 ? '255,159,10' : '255,59,48'},0.15); color: var(${confPct > 80 ? '--success' : confPct > 50 ? '--warning' : '--danger'});">
+            ${confPct}%
+          </span>
+        </div>
+        <label class="switch card-toggle" onclick="event.stopPropagation()">
+          <input type="checkbox" ${event.isEnabled ? 'checked' : ''} onchange="toggleEventEnabled('${event.id}', this.checked)">
+          <span class="slider"></span>
+        </label>
+        <span class="expand-btn ${event.isExpanded ? 'open' : ''}">▶</span>
+      </div>
+      <div class="card-body ${event.isExpanded ? 'open' : ''}">
+        <div class="form-row">
+          <div class="form-group" style="flex: 2;">
+            <label class="form-label">标题</label>
+            <input class="form-input" value="${escapeAttr(event.title)}" onchange="updateEventField('${event.id}', 'title', this.value)">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">分类</label>
+            <select class="form-select" onchange="updateEventField('${event.id}', 'category', this.value)">
+              ${['meeting','deadline','travel','appointment','reminder','task','birthday','other'].map(c =>
+                `<option value="${c}" ${event.category === c ? 'selected' : ''}>${getCategoryLabel(c)}</option>`
+              ).join('')}
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">目标</label>
+            <div class="seg-control">
+              <button class="seg-btn ${event.destination === 'calendar' ? 'active' : ''}" onclick="setEventDestination('${event.id}', 'calendar', this)">日历</button>
+              <button class="seg-btn ${event.destination === 'reminder' ? 'active' : ''}" onclick="setEventDestination('${event.id}', 'reminder', this)">提醒</button>
+              <button class="seg-btn ${event.destination === 'ignore' ? 'active' : ''}" onclick="setEventDestination('${event.id}', 'ignore', this)">忽略</button>
+            </div>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">日期</label>
+            <input type="date" class="form-input" value="${event.date || ''}" onchange="updateEventField('${event.id}', 'date', this.value)">
+          </div>
+          <div class="form-group">
+            <label class="form-label">开始时间</label>
+            <input type="time" class="form-input" value="${event.startTime ? extractTime(event.startTime) : ''}" onchange="updateEventStartTime('${event.id}', this.value)">
+          </div>
+          <div class="form-group">
+            <label class="form-label">结束时间</label>
+            <input type="time" class="form-input" value="${event.endTime ? extractTime(event.endTime) : ''}" onchange="updateEventEndTime('${event.id}', this.value)">
+          </div>
+          <div class="form-group" style="flex: 0; min-width: auto;">
+            <label class="form-label">全天</label>
+            <label class="switch" style="margin-top:4px;">
+              <input type="checkbox" ${event.isAllDay ? 'checked' : ''} onchange="updateEventField('${event.id}', 'isAllDay', this.checked)">
+              <span class="slider"></span>
+            </label>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">地点</label>
+            <input class="form-input" value="${escapeAttr(event.location || '')}" onchange="updateEventField('${event.id}', 'location', this.value)" placeholder="可选">
+          </div>
+          <div class="form-group">
+            <label class="form-label">参与人</label>
+            <input class="form-input" value="${escapeAttr((event.participants || []).join(', '))}" onchange="updateEventField('${event.id}', 'participants', this.value.split(',').map(s=>s.trim()))" placeholder="用逗号分隔">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">描述</label>
+            <textarea class="form-textarea" onchange="updateEventField('${event.id}', 'description', this.value)" placeholder="可选">${escapeHtml(event.description || '')}</textarea>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">提前提醒</label>
+            <select class="form-select" onchange="updateEventField('${event.id}', 'reminderMinutesBefore', this.value ? parseInt(this.value) : null)">
+              <option value="">无</option>
+              <option value="5" ${event.reminderMinutesBefore === 5 ? 'selected' : ''}>5 分钟前</option>
+              <option value="10" ${event.reminderMinutesBefore === 10 ? 'selected' : ''}>10 分钟前</option>
+              <option value="15" ${event.reminderMinutesBefore === 15 ? 'selected' : ''}>15 分钟前</option>
+              <option value="30" ${event.reminderMinutesBefore === 30 ? 'selected' : ''}>30 分钟前</option>
+              <option value="60" ${event.reminderMinutesBefore === 60 ? 'selected' : ''}>1 小时前</option>
+              <option value="120" ${event.reminderMinutesBefore === 120 ? 'selected' : ''}>2 小时前</option>
+              <option value="1440" ${event.reminderMinutesBefore === 1440 ? 'selected' : ''}>1 天前</option>
+            </select>
+          </div>
+        </div>
+        ${event.sourceText ? `
+        <div class="source-text">
+          <div class="source-label">原文来源</div>
+          ${escapeHtml(event.sourceText)}
+        </div>` : ''}
+        <div class="card-actions">
+          <button class="btn-delete" onclick="deleteEvent('${event.id}')">
+            🗑️ 删除
+          </button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderReminderCard(reminder) {
+  const confPct = Math.round(reminder.confidence * 100);
+  const dueStr = reminder.dueDate ? formatDateTime(reminder.dueDate) : '无截止日期';
+  const priorityMap = { none: '无', low: '低', medium: '中', high: '高' };
+  const priorityColors = { none: 'gray', low: 'blue', medium: 'orange', high: 'red' };
+
+  return `
+    <div class="card ${reminder.isUncertain ? 'uncertain' : ''} ${!reminder.isEnabled ? 'disabled' : ''}" data-id="${reminder.id}" data-type="reminder">
+      <div class="card-header" onclick="toggleCard(this)">
+        <div class="card-icon ${priorityColors[reminder.priority] || 'orange'}">
+          ${reminder.priority === 'high' ? '❗' : '🔔'}
+        </div>
+        <div class="card-main">
+          <div class="card-title">${escapeHtml(reminder.title)}</div>
+          <div class="card-meta">
+            <span>📆 ${dueStr}</span>
+            <span>优先级：${priorityMap[reminder.priority] || '无'}</span>
+          </div>
+        </div>
+        <div class="card-badges">
+          ${reminder.isUncertain ? '<span class="badge warning">❓ 不确定</span>' : ''}
+          <span class="badge" style="background: rgba(${confPct > 80 ? '48,209,88' : confPct > 50 ? '255,159,10' : '255,59,48'},0.15); color: var(${confPct > 80 ? '--success' : confPct > 50 ? '--warning' : '--danger'});">
+            ${confPct}%
+          </span>
+        </div>
+        <label class="switch card-toggle" onclick="event.stopPropagation()">
+          <input type="checkbox" ${reminder.isEnabled ? 'checked' : ''} onchange="toggleReminderEnabled('${reminder.id}', this.checked)">
+          <span class="slider"></span>
+        </label>
+        <span class="expand-btn ${reminder.isExpanded ? 'open' : ''}">▶</span>
+      </div>
+      <div class="card-body ${reminder.isExpanded ? 'open' : ''}">
+        <div class="form-row">
+          <div class="form-group" style="flex: 2;">
+            <label class="form-label">标题</label>
+            <input class="form-input" value="${escapeAttr(reminder.title)}" onchange="updateReminderField('${reminder.id}', 'title', this.value)">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">截止日期</label>
+            <input type="date" class="form-input" value="${reminder.dueDate ? reminder.dueDate.split('T')[0] : ''}" onchange="updateReminderDueDate('${reminder.id}', this.value)">
+          </div>
+          <div class="form-group">
+            <label class="form-label">提醒时间</label>
+            <input type="time" class="form-input" value="${reminder.reminderTime ? extractTime(reminder.reminderTime) : ''}" onchange="updateReminderTime('${reminder.id}', this.value)">
+          </div>
+          <div class="form-group">
+            <label class="form-label">优先级</label>
+            <select class="form-select" onchange="updateReminderField('${reminder.id}', 'priority', this.value)">
+              ${['none','low','medium','high'].map(p =>
+                `<option value="${p}" ${reminder.priority === p ? 'selected' : ''}>${priorityMap[p]}</option>`
+              ).join('')}
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">备注</label>
+            <textarea class="form-textarea" onchange="updateReminderField('${reminder.id}', 'notes', this.value)" placeholder="可选">${escapeHtml(reminder.notes || '')}</textarea>
+          </div>
+        </div>
+        ${reminder.sourceText ? `
+        <div class="source-text">
+          <div class="source-label">原文来源</div>
+          ${escapeHtml(reminder.sourceText)}
+        </div>` : ''}
+        <div class="card-actions">
+          <button class="btn-delete" onclick="deleteReminder('${reminder.id}')">
+            🗑️ 删除
+          </button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderIgnoredItem(item) {
+  const iconMap = {
+    greeting: '👋',
+    advertisement: '📢',
+    smalltalk: '💬',
+    conversation: '🗣️',
+    information: 'ℹ️'
+  };
+  const icon = iconMap[item.category] || 'ℹ️';
+  const catLabelMap = {
+    greeting: '问候',
+    advertisement: '广告',
+    smalltalk: '闲聊',
+    conversation: '对话',
+    information: '信息'
+  };
+
+  return `
+    <div class="ignored-item">
+      <div class="ignored-icon">${icon}</div>
+      <div class="ignored-content">
+        <div class="ignored-text">${escapeHtml(item.content)}</div>
+        <div class="ignored-meta">
+          ${catLabelMap[item.category] || item.category}
+          ${item.reason ? ' · ' + escapeHtml(item.reason) : ''}
+        </div>
+      </div>
+      <div class="ignored-actions">
+        <button class="icon-btn" onclick="convertIgnored('${item.id}', 'event')" title="转为日历事件">📅</button>
+        <button class="icon-btn" onclick="convertIgnored('${item.id}', 'reminder')" title="转为提醒">🔔</button>
+      </div>
+    </div>
+  `;
+}
+
+function toggleCard(headerEl) {
+  const card = headerEl.parentElement;
+  const body = card.querySelector('.card-body');
+  const expandBtn = card.querySelector('.expand-btn');
+  body.classList.toggle('open');
+  expandBtn.classList.toggle('open');
+
+  const id = card.dataset.id;
+  const type = card.dataset.type;
+  if (type === 'event') {
+    const event = currentResult.events.find(e => e.id === id);
+    if (event) event.isExpanded = !event.isExpanded;
+  } else {
+    const rem = currentResult.reminders.find(r => r.id === id);
+    if (rem) rem.isExpanded = !rem.isExpanded;
+  }
+}
+
+// ============================================
+// Card operations
+// ============================================
+function toggleEventEnabled(id, enabled) {
+  const event = currentResult.events.find(e => e.id === id);
+  if (event) {
+    event.isEnabled = enabled;
+    const card = document.querySelector(`.card[data-id="${id}"]`);
+    if (card) card.classList.toggle('disabled', !enabled);
+    updateBottomCount();
+  }
+}
+
+function toggleReminderEnabled(id, enabled) {
+  const rem = currentResult.reminders.find(r => r.id === id);
+  if (rem) {
+    rem.isEnabled = enabled;
+    const card = document.querySelector(`.card[data-id="${id}"]`);
+    if (card) card.classList.toggle('disabled', !enabled);
+    updateBottomCount();
+  }
+}
+
+function updateEventField(id, field, value) {
+  const event = currentResult.events.find(e => e.id === id);
+  if (event) {
+    event[field] = value;
+    if (field === 'category' || field === 'title' || field === 'date' || field === 'startTime' || field === 'isAllDay') {
+      renderAnalysis(currentResult);
+    }
+    updateBottomCount();
+  }
+}
+
+function updateEventStartTime(id, timeStr) {
+  const event = currentResult.events.find(e => e.id === id);
+  if (event && event.date) {
+    event.startTime = event.date + 'T' + timeStr + ':00';
+    if (!event.endTime) {
+      const [h, m] = timeStr.split(':').map(Number);
+      const endH = h + 1;
+      event.endTime = event.date + 'T' + String(endH).padStart(2,'0') + ':' + String(m).padStart(2,'0') + ':00';
+    }
+    renderAnalysis(currentResult);
+  }
+}
+
+function updateEventEndTime(id, timeStr) {
+  const event = currentResult.events.find(e => e.id === id);
+  if (event && event.date) {
+    event.endTime = event.date + 'T' + timeStr + ':00';
+    renderAnalysis(currentResult);
+  }
+}
+
+function setEventDestination(id, dest, btn) {
+  const event = currentResult.events.find(e => e.id === id);
+  if (event) {
+    event.destination = dest;
+    renderAnalysis(currentResult);
+  }
+}
+
+function deleteEvent(id) {
+  currentResult.events = currentResult.events.filter(e => e.id !== id);
+  renderAnalysis(currentResult);
+  showToast('success', '已删除');
+}
+
+function updateReminderField(id, field, value) {
+  const rem = currentResult.reminders.find(r => r.id === id);
+  if (rem) {
+    rem[field] = value;
+    renderAnalysis(currentResult);
+    updateBottomCount();
+  }
+}
+
+function updateReminderDueDate(id, dateStr) {
+  const rem = currentResult.reminders.find(r => r.id === id);
+  if (rem) {
+    rem.dueDate = dateStr + 'T09:00:00';
+    renderAnalysis(currentResult);
+  }
+}
+
+function updateReminderTime(id, timeStr) {
+  const rem = currentResult.reminders.find(r => r.id === id);
+  if (rem && rem.dueDate) {
+    rem.reminderTime = rem.dueDate.split('T')[0] + 'T' + timeStr + ':00';
+    renderAnalysis(currentResult);
+  }
+}
+
+function deleteReminder(id) {
+  currentResult.reminders = currentResult.reminders.filter(r => r.id !== id);
+  renderAnalysis(currentResult);
+  showToast('success', '已删除');
+}
+
+function convertIgnored(id, target) {
+  const item = currentResult.ignored_information.find(i => i.id === id);
+  if (!item) return;
+
+  if (target === 'event') {
+    currentResult.events.push({
+      id: 'evt_conv_' + Date.now(),
+      title: item.content.slice(0, 60),
+      category: 'other',
+      destination: 'calendar',
+      date: null,
+      startTime: null,
+      endTime: null,
+      isAllDay: false,
+      location: '',
+      participants: [],
+      description: item.reason || '',
+      sourceText: item.content,
+      confidence: 0.5,
+      reminderMinutesBefore: 10,
+      isUncertain: true,
+      isEnabled: true,
+      isExpanded: true,
+      hasConflict: false,
+      isDuplicate: false
+    });
+  } else {
+    currentResult.reminders.push({
+      id: 'rem_conv_' + Date.now(),
+      title: item.content.slice(0, 60),
+      dueDate: null,
+      priority: 'none',
+      reminderTime: null,
+      notes: item.reason || '',
+      sourceText: item.content,
+      confidence: 0.5,
+      isUncertain: true,
+      isEnabled: true,
+      isExpanded: true
+    });
+  }
+
+  currentResult.ignored_information = currentResult.ignored_information.filter(i => i.id !== id);
+  renderAnalysis(currentResult);
+  showToast('success', target === 'event' ? '已转为日历事件' : '已转为提醒');
+}
+
+// ============================================
+// Bottom bar
+// ============================================
+function updateBottomCount() {
+  if (!currentResult) return;
+  const calCount = currentResult.events.filter(e => e.isEnabled && e.destination === 'calendar').length;
+  const remCount = currentResult.reminders.filter(r => r.isEnabled).length +
+                   currentResult.events.filter(e => e.isEnabled && e.destination === 'reminder').length;
+  document.getElementById('bottomCount').textContent = `${calCount} 个事件 · ${remCount} 个提醒`;
+  document.getElementById('btnCreateAll').disabled = (calCount + remCount) === 0;
+}
+
+// ============================================
+// Create / ICS Export
+// ============================================
+function createAll() {
+  autoImportToCalendar();
+}
+
+function toggleImportMenu() {
+  const menu = document.getElementById('importMenu');
+  if (menu.style.display === 'none') {
+    menu.style.display = 'block';
+    setTimeout(() => {
+      document.addEventListener('click', closeImportMenu, { once: true });
+    }, 10);
+  } else {
+    menu.style.display = 'none';
+  }
+}
+
+function closeImportMenu(e) {
+  const menu = document.getElementById('importMenu');
+  const btn = document.getElementById('btnCreateAll');
+  if (menu && !menu.contains(e.target) && !btn.contains(e.target)) {
+    menu.style.display = 'none';
+  } else if (menu && e.target && !menu.contains(e.target)) {
+    menu.style.display = 'none';
+  }
+}
+
+function downloadAppleScript() {
+  document.getElementById('importMenu').style.display = 'none';
+  if (!currentResult) {
+    showToast('error', '没有可导入的内容');
+    return;
+  }
+
+  const script = generatePureAppleScript();
+  if (!script) {
+    showToast('error', '没有可导入的事件或提醒');
+    return;
+  }
+
+  const blob = new Blob([script], { type: 'text/plain;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = '导入到日历.applescript';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+
+  document.getElementById('successToast').style.display = 'flex';
+  setTimeout(() => {
+    document.getElementById('successToast').style.display = 'none';
+  }, 10000);
+
+  showToast('success', '脚本已下载！双击打开后点运行▶️ 即可导入');
+}
+
+function generatePureAppleScript() {
+  if (!currentResult) return '';
+
+  const enabledEvents = currentResult.events.filter(e => e.isEnabled);
+  const enabledReminders = currentResult.reminders.filter(r => r.isEnabled);
+
+  if (enabledEvents.length === 0 && enabledReminders.length === 0) return '';
+
+  let script = `-- AI Calendar Assistant - 自动导入脚本
+-- 点击左上角的 ▶️ 运行按钮即可导入
+-- 首次运行会弹出权限请求，点击"好"即可
+
+set eventCount to 0
+set reminderCount to 0
+`;
+
+  if (enabledEvents.length > 0) {
+    script += `
+try
+    tell application "Calendar"
+        activate
+        set myCalendar to first calendar
+`;
+    enabledEvents.forEach(event => {
+      const title = applescriptEscape(event.title);
+      const location = applescriptEscape(event.location || '');
+      const description = applescriptEscape(event.description || '');
+
+      if (event.isAllDay && event.date) {
+        const [y, m, d] = event.date.split('-').map(Number);
+        script += `
+        try
+            set eventDate to current date
+            set year of eventDate to ${y}
+            set month of eventDate to ${m}
+            set day of eventDate to ${d}
+            set hours of eventDate to 0
+            set minutes of eventDate to 0
+            set seconds of eventDate to 0
+            
+            set newEvent to make new event at end of events of myCalendar with properties {summary:"${title}", allday event:true, start date:eventDate, end date:eventDate}
+            if "${location}" is not "" then set location of newEvent to "${location}"
+            if "${description}" is not "" then set description of newEvent to "${description}"
+            set eventCount to eventCount + 1
+        end try
+`;
+      } else if (event.startTime) {
+        const start = new Date(event.startTime);
+        let end;
+        if (event.endTime) {
+          end = new Date(event.endTime);
+        } else {
+          end = new Date(start.getTime() + 3600000);
+        }
+        const startM = start.getMonth() + 1;
+        const startD = start.getDate();
+        const startY = start.getFullYear();
+        const startH = start.getHours();
+        const startMin = start.getMinutes();
+        const endM = end.getMonth() + 1;
+        const endD = end.getDate();
+        const endY = end.getFullYear();
+        const endH = end.getHours();
+        const endMin = end.getMinutes();
+
+        script += `
+        try
+            set startDate to current date
+            set year of startDate to ${startY}
+            set month of startDate to ${startM}
+            set day of startDate to ${startD}
+            set hours of startDate to ${startH}
+            set minutes of startDate to ${startMin}
+            set seconds of startDate to 0
+            
+            set endDate to current date
+            set year of endDate to ${endY}
+            set month of endDate to ${endM}
+            set day of endDate to ${endD}
+            set hours of endDate to ${endH}
+            set minutes of endDate to ${endMin}
+            set seconds of endDate to 0
+            
+            set newEvent to make new event at end of events of myCalendar with properties {summary:"${title}", start date:startDate, end date:endDate}
+            if "${location}" is not "" then set location of newEvent to "${location}"
+            if "${description}" is not "" then set description of newEvent to "${description}"
+`;
+        if (event.reminderMinutesBefore && event.reminderMinutesBefore > 0) {
+          script += `
+            tell newEvent
+                make new display alarm at end of display alarms with properties {trigger interval:-${event.reminderMinutesBefore}}
+            end tell
+`;
+        }
+        script += `
+            set eventCount to eventCount + 1
+        end try
+`;
+      } else if (event.date) {
+        const [y, m, d] = event.date.split('-').map(Number);
+        script += `
+        try
+            set eventDate to current date
+            set year of eventDate to ${y}
+            set month of eventDate to ${m}
+            set day of eventDate to ${d}
+            set hours of eventDate to 9
+            set minutes of eventDate to 0
+            set seconds of eventDate to 0
+            
+            set endDate to current date
+            set year of endDate to ${y}
+            set month of endDate to ${m}
+            set day of endDate to ${d}
+            set hours of endDate to 10
+            set minutes of endDate to 0
+            set seconds of endDate to 0
+            
+            set newEvent to make new event at end of events of myCalendar with properties {summary:"${title}", start date:eventDate, end date:endDate}
+            if "${location}" is not "" then set location of newEvent to "${location}"
+            if "${description}" is not "" then set description of newEvent to "${description}"
+            set eventCount to eventCount + 1
+        end try
+`;
+      } else {
+        script += `
+        try
+            set newEvent to make new event at end of events of myCalendar with properties {summary:"${title}"}
+            if "${location}" is not "" then set location of newEvent to "${location}"
+            if "${description}" is not "" then set description of newEvent to "${description}"
+            set eventCount to eventCount + 1
+        end try
+`;
+      }
+    });
+    script += `
+    end tell
+end try
+`;
+  }
+
+  if (enabledReminders.length > 0) {
+    script += `
+try
+    tell application "Reminders"
+        activate
+        set defaultList to default list
+`;
+    enabledReminders.forEach(rem => {
+      const title = applescriptEscape(rem.title);
+      const notes = applescriptEscape(rem.notes || '');
+
+      script += `
+        try
+            set newReminder to make new reminder at end of defaultList with properties {name:"${title}"}
+            if "${notes}" is not "" then set body of newReminder to "${notes}"
+`;
+      if (rem.dueDate) {
+        const due = new Date(rem.dueDate);
+        const dM = due.getMonth() + 1;
+        const dD = due.getDate();
+        const dY = due.getFullYear();
+        const dH = due.getHours() || 9;
+        const dMin = due.getMinutes() || 0;
+        script += `
+            set dueDate to current date
+            set year of dueDate to ${dY}
+            set month of dueDate to ${dM}
+            set day of dueDate to ${dD}
+            set hours of dueDate to ${dH}
+            set minutes of dueDate to ${dMin}
+            set seconds of dueDate to 0
+            set due date of newReminder to dueDate
+`;
+      }
+      if (rem.priority === 'high') {
+        script += `            set priority of newReminder to 1
+`;
+      } else if (rem.priority === 'medium') {
+        script += `            set priority of newReminder to 5
+`;
+      } else if (rem.priority === 'low') {
+        script += `            set priority of newReminder to 9
+`;
+      }
+      script += `
+            set reminderCount to reminderCount + 1
+        end try
+`;
+    });
+    script += `
+    end tell
+end try
+`;
+  }
+
+  script += `
+set totalMsg to ""
+if eventCount > 0 then
+    set totalMsg to totalMsg & (eventCount as string) & " 个日历事件"
+end if
+if reminderCount > 0 then
+    if totalMsg is not "" then set totalMsg to totalMsg & " 和 "
+    set totalMsg to totalMsg & (reminderCount as string) & " 个提醒"
+end if
+if totalMsg is "" then
+    set totalMsg to "没有需要导入的内容"
+end if
+
+display notification totalMsg with title "AI Calendar Assistant" subtitle "导入完成"
+
+display dialog "✅ 导入完成！" & return & return & totalMsg buttons {"好的"} default button 1 with icon note
+`;
+
+  return script;
+}
+
+function autoImportToCalendar() {
+  document.getElementById('importMenu').style.display = 'none';
+  if (!currentResult) {
+    showToast('error', '没有可导入的内容');
+    return;
+  }
+
+  const script = generateAppleScript();
+  if (!script) {
+    showToast('error', '没有可导入的事件或提醒');
+    return;
+  }
+
+  const blob = new Blob([script], { type: 'text/plain;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = '导入到日历.command';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+
+  document.getElementById('successToast').style.display = 'flex';
+  setTimeout(() => {
+    document.getElementById('successToast').style.display = 'none';
+  }, 8000);
+
+  showToast('success', '脚本已下载！右键打开方式选"终端"运行');
+}
+
+function generateAppleScript() {
+  if (!currentResult) return '';
+
+  const enabledEvents = currentResult.events.filter(e => e.isEnabled && e.destination === 'calendar');
+  const enabledReminders = currentResult.reminders.filter(r => r.isEnabled);
+  const eventReminders = currentResult.events.filter(e => e.isEnabled && e.destination === 'reminder');
+  const allReminders = [...enabledReminders, ...eventReminders.map(e => ({
+    id: e.id,
+    title: e.title,
+    dueDate: e.startTime || e.date,
+    notes: e.description || '',
+    priority: 'none'
+  }))];
+
+  if (enabledEvents.length === 0 && allReminders.length === 0) return '';
+
+  let script = `#!/bin/bash
+# AI Calendar Assistant - 自动导入到 Mac 日历
+# 首次运行会弹出权限请求，点击"允许"即可
+
+osascript << 'APPLESCRIPT'
+tell application "Calendar"
+    activate
+end tell
+
+set eventCount to 0
+set reminderCount to 0
+`;
+
+  if (enabledEvents.length > 0) {
+    script += `
+try
+    tell application "Calendar"
+        set myCalendar to first calendar
+`;
+    enabledEvents.forEach(event => {
+      const title = applescriptEscape(event.title);
+      const location = applescriptEscape(event.location || '');
+      const description = applescriptEscape(event.description || '');
+
+      if (event.isAllDay && event.date) {
+        const [y, m, d] = event.date.split('-').map(Number);
+        script += `
+        try
+            set eventDate to current date
+            set year of eventDate to ${y}
+            set month of eventDate to ${m}
+            set day of eventDate to ${d}
+            set hours of eventDate to 0
+            set minutes of eventDate to 0
+            set seconds of eventDate to 0
+
+            set newEvent to make new event at end of events of myCalendar with properties {summary:"${title}", allday event:true, start date:eventDate, end date:eventDate}
+            if "${location}" is not "" then set location of newEvent to "${location}"
+            if "${description}" is not "" then set description of newEvent to "${description}"
+            set eventCount to eventCount + 1
+        end try
+`;
+      } else if (event.startTime) {
+        const start = new Date(event.startTime);
+        let end;
+        if (event.endTime) {
+          end = new Date(event.endTime);
+        } else {
+          end = new Date(start.getTime() + 3600000);
+        }
+        const startM = start.getMonth() + 1;
+        const startD = start.getDate();
+        const startY = start.getFullYear();
+        const startH = start.getHours();
+        const startMin = start.getMinutes();
+        const endM = end.getMonth() + 1;
+        const endD = end.getDate();
+        const endY = end.getFullYear();
+        const endH = end.getHours();
+        const endMin = end.getMinutes();
+
+        script += `
+        try
+            set startDate to current date
+            set year of startDate to ${startY}
+            set month of startDate to ${startM}
+            set day of startDate to ${startD}
+            set hours of startDate to ${startH}
+            set minutes of startDate to ${startMin}
+            set seconds of startDate to 0
+
+            set endDate to current date
+            set year of endDate to ${endY}
+            set month of endDate to ${endM}
+            set day of endDate to ${endD}
+            set hours of endDate to ${endH}
+            set minutes of endDate to ${endMin}
+            set seconds of endDate to 0
+
+            set newEvent to make new event at end of events of myCalendar with properties {summary:"${title}", start date:startDate, end date:endDate}
+            if "${location}" is not "" then set location of newEvent to "${location}"
+            if "${description}" is not "" then set description of newEvent to "${description}"
+`;
+        if (event.reminderMinutesBefore && event.reminderMinutesBefore > 0) {
+          script += `
+            tell newEvent
+                make new display alarm at end of display alarms with properties {trigger interval:-${event.reminderMinutesBefore}}
+            end tell
+`;
+        }
+        script += `
+            set eventCount to eventCount + 1
+        end try
+`;
+      }
+    });
+    script += `
+    end tell
+end try
+`;
+  }
+
+  if (allReminders.length > 0) {
+    script += `
+try
+    tell application "Reminders"
+        activate
+        set defaultList to default list
+`;
+    allReminders.forEach(rem => {
+      const title = applescriptEscape(rem.title);
+      const notes = applescriptEscape(rem.notes || '');
+
+      script += `
+        try
+            set newReminder to make new reminder at end of defaultList with properties {name:"${title}"}
+            if "${notes}" is not "" then set body of newReminder to "${notes}"
+`;
+      if (rem.dueDate) {
+        const due = new Date(rem.dueDate);
+        const dM = due.getMonth() + 1;
+        const dD = due.getDate();
+        const dY = due.getFullYear();
+        const dH = due.getHours() || 9;
+        const dMin = due.getMinutes() || 0;
+        script += `
+            set dueDate to current date
+            set year of dueDate to ${dY}
+            set month of dueDate to ${dM}
+            set day of dueDate to ${dD}
+            set hours of dueDate to ${dH}
+            set minutes of dueDate to ${dMin}
+            set seconds of dueDate to 0
+            set due date of newReminder to dueDate
+`;
+      }
+      if (rem.priority === 'high') {
+        script += `            set priority of newReminder to 1
+`;
+      } else if (rem.priority === 'medium') {
+        script += `            set priority of newReminder to 5
+`;
+      } else if (rem.priority === 'low') {
+        script += `            set priority of newReminder to 9
+`;
+      }
+      script += `
+            set reminderCount to reminderCount + 1
+        end try
+`;
+    });
+    script += `
+    end tell
+end try
+`;
+  }
+
+  script += `
+set totalMsg to ""
+if eventCount > 0 then
+    set totalMsg to totalMsg & (eventCount as string) & " 个日历事件"
+end if
+if reminderCount > 0 then
+    if totalMsg is not "" then set totalMsg to totalMsg & " 和 "
+    set totalMsg to totalMsg & (reminderCount as string) & " 个提醒"
+end if
+if totalMsg is "" then
+    set totalMsg to "没有需要导入的内容"
+end if
+
+display notification totalMsg with title "AI Calendar Assistant" subtitle "导入完成"
+
+return "已导入 " & totalMsg
+APPLESCRIPT
+
+echo ""
+echo "✅ 导入完成！"
+echo ""
+read -p "按回车键关闭窗口..."
+`;
+
+  return script;
+}
+
+function applescriptEscape(str) {
+  return (str || '')
+    .replace(/\\/g, '\\\\')
+    .replace(/"/g, '\\"')
+    .replace(/\n/g, '\\n');
+}
+
+function generateICS() {
+  if (!currentResult) return '';
+
+  let ics = 'BEGIN:VCALENDAR\n';
+  ics += 'VERSION:2.0\n';
+  ics += 'PRODID:-//AI Calendar Assistant//CN\n';
+  ics += 'CALSCALE:GREGORIAN\n';
+
+  const enabledEvents = currentResult.events.filter(e => e.isEnabled);
+
+  enabledEvents.forEach((event, i) => {
+    ics += 'BEGIN:VEVENT\n';
+    ics += 'UID:' + event.id + '@aicalendar\n';
+    ics += 'DTSTAMP:' + toICSDate(new Date()) + '\n';
+    
+    if (event.isAllDay && event.date) {
+      const dateStr = event.date.replace(/-/g, '');
+      ics += 'DTSTART;VALUE=DATE:' + dateStr + '\n';
+      let endDateStr = dateStr;
+      if (event.endTime && event.endTime.split) {
+        endDateStr = event.endTime.split('T')[0].replace(/-/g, '');
+      } else {
+        const [y, m, d] = event.date.split('-').map(Number);
+        const nextDay = new Date(y, m - 1, d + 1);
+        endDateStr = nextDay.getFullYear() + 
+          String(nextDay.getMonth() + 1).padStart(2, '0') + 
+          String(nextDay.getDate()).padStart(2, '0');
+      }
+      ics += 'DTEND;VALUE=DATE:' + endDateStr + '\n';
+    } else if (event.startTime) {
+      const start = new Date(event.startTime);
+      let end;
+      if (event.endTime) {
+        end = new Date(event.endTime);
+      } else {
+        end = new Date(start.getTime() + 3600000);
+      }
+      ics += 'DTSTART:' + toICSDate(start) + '\n';
+      ics += 'DTEND:' + toICSDate(end) + '\n';
+    } else if (event.date) {
+      const dateStr = event.date.replace(/-/g, '');
+      ics += 'DTSTART;VALUE=DATE:' + dateStr + '\n';
+      const [y, m, d] = event.date.split('-').map(Number);
+      const nextDay = new Date(y, m - 1, d + 1);
+      const endDateStr = nextDay.getFullYear() + 
+        String(nextDay.getMonth() + 1).padStart(2, '0') + 
+        String(nextDay.getDate()).padStart(2, '0');
+      ics += 'DTEND;VALUE=DATE:' + endDateStr + '\n';
+    }
+    
+    ics += 'SUMMARY:' + icsEscape(event.title) + '\n';
+    if (event.description) {
+      ics += 'DESCRIPTION:' + icsEscape(event.description) + '\n';
+    }
+    if (event.location) {
+      ics += 'LOCATION:' + icsEscape(event.location) + '\n';
+    }
+    if (event.participants && event.participants.length > 0) {
+      event.participants.forEach(p => {
+        ics += 'ATTENDEE:CN=' + icsEscape(p) + '\n';
+      });
+    }
+    if (event.reminderMinutesBefore && event.reminderMinutesBefore > 0) {
+      ics += 'BEGIN:VALARM\n';
+      ics += 'ACTION:DISPLAY\n';
+      ics += 'DESCRIPTION:Reminder\n';
+      ics += 'TRIGGER:-PT' + event.reminderMinutesBefore + 'M\n';
+      ics += 'END:VALARM\n';
+    }
+    ics += 'END:VEVENT\n';
+  });
+
+  const enabledReminders = currentResult.reminders.filter(r => r.isEnabled);
+  
+  enabledReminders.forEach(rem => {
+    ics += 'BEGIN:VEVENT\n';
+    ics += 'UID:' + rem.id + '@aicalendar\n';
+    ics += 'DTSTAMP:' + toICSDate(new Date()) + '\n';
+    ics += 'SUMMARY:' + icsEscape(rem.title) + '\n';
+    if (rem.notes) {
+      ics += 'DESCRIPTION:' + icsEscape(rem.notes) + '\n';
+    }
+    if (rem.dueDate) {
+      const due = new Date(rem.dueDate);
+      ics += 'DTSTART:' + toICSDate(due) + '\n';
+      const end = new Date(due.getTime() + 3600000);
+      ics += 'DTEND:' + toICSDate(end) + '\n';
+    }
+    ics += 'STATUS:CONFIRMED\n';
+    ics += 'END:VEVENT\n';
+  });
+
+  ics += 'END:VCALENDAR\n';
+  return ics;
+}
+
+function toICSDate(date) {
+  const pad = n => String(n).padStart(2, '0');
+  return date.getUTCFullYear() +
+    pad(date.getUTCMonth() + 1) +
+    pad(date.getUTCDate()) + 'T' +
+    pad(date.getUTCHours()) +
+    pad(date.getUTCMinutes()) +
+    pad(date.getUTCSeconds()) + 'Z';
+}
+
+function icsEscape(str) {
+  return (str || '')
+    .replace(/\\/g, '\\\\')
+    .replace(/;/g, '\\;')
+    .replace(/,/g, '\\,')
+    .replace(/\n/g, '\\n');
+}
+
+async function openInCalendar() {
+  if (!currentResult) {
+    showToast('error', '没有可导入的内容');
+    return;
+  }
+
+  const enabledEvents = currentResult.events.filter(e => e.isEnabled);
+  const enabledReminders = currentResult.reminders.filter(r => r.isEnabled);
+
+  if (enabledEvents.length === 0 && enabledReminders.length === 0) {
+    showToast('error', '没有可导入的事件或提醒');
+    return;
+  }
+
+  // GitHub Pages 是纯静态网页，无法访问 Mac 的 localhost 服务。
+  // 在手机端直接生成 .ics 文件，Safari/日历可以继续导入。
+  if (!isLocalMacMode) {
+    downloadICS();
+    return;
+  }
+
+  const btn = document.getElementById('btnCreateAll');
+  const btnText = document.getElementById('btnImportText');
+  btn.disabled = true;
+  btnText.textContent = '正在导入...';
+
+  try {
+    const response = await fetch('http://localhost:19527/api/import', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        events: enabledEvents.map(e => ({
+          title: e.title,
+          date: e.date,
+          startTime: e.startTime,
+          endTime: e.endTime,
+          isAllDay: e.isAllDay,
+          location: e.location,
+          description: e.description,
+          reminderMinutesBefore: e.reminderMinutesBefore
+        })),
+        reminders: enabledReminders.map(r => ({
+          title: r.title,
+          dueDate: r.dueDate,
+          notes: r.notes,
+          priority: r.priority
+        }))
+      })
+    });
+
+    const result = await response.json();
+
+    if (result.success) {
+      document.getElementById('successToast').textContent = '✅ ' + result.message;
+      document.getElementById('successToast').style.display = 'flex';
+      setTimeout(() => {
+        document.getElementById('successToast').style.display = 'none';
+      }, 5000);
+      showToast('success', result.message);
+    } else {
+      showToast('error', result.message);
+    }
+  } catch (err) {
+    showToast('error', '无法连接本地服务，请先双击「安装并启动.command」');
+  } finally {
+    btn.disabled = false;
+    btnText.textContent = isLocalMacMode ? '一键导入提醒事项' : '一键导出日历文件';
+  }
+}
+
+function generateAutoRunScript() {
+  if (!currentResult) return '';
+
+  const enabledEvents = currentResult.events.filter(e => e.isEnabled);
+  const enabledReminders = currentResult.reminders.filter(r => r.isEnabled);
+
+  if (enabledEvents.length === 0 && enabledReminders.length === 0) return '';
+
+  let script = `#!/bin/bash
+
+if [ ! -x "$0" ]; then
+    chmod +x "$0"
+    exec "$0"
+    exit 0
+fi
+
+osascript << 'APPLESCRIPT'
+set eventCount to 0
+set reminderCount to 0
+
+`;
+
+  if (enabledEvents.length > 0) {
+    script += `
+try
+    tell application "Calendar"
+        activate
+        set myCalendar to first calendar
+`;
+    enabledEvents.forEach(event => {
+      const title = applescriptEscape(event.title);
+      const location = applescriptEscape(event.location || '');
+      const description = applescriptEscape(event.description || '');
+
+      if (event.isAllDay && event.date) {
+        const [y, m, d] = event.date.split('-').map(Number);
+        script += `
+        try
+            set eventDate to current date
+            set year of eventDate to ${y}
+            set month of eventDate to ${m}
+            set day of eventDate to ${d}
+            set hours of eventDate to 0
+            set minutes of eventDate to 0
+            set seconds of eventDate to 0
+            
+            set newEvent to make new event at end of events of myCalendar with properties {summary:"${title}", allday event:true, start date:eventDate, end date:eventDate}
+            if "${location}" is not "" then set location of newEvent to "${location}"
+            if "${description}" is not "" then set description of newEvent to "${description}"
+            set eventCount to eventCount + 1
+        end try
+`;
+      } else if (event.startTime) {
+        const start = new Date(event.startTime);
+        let end;
+        if (event.endTime) {
+          end = new Date(event.endTime);
+        } else {
+          end = new Date(start.getTime() + 3600000);
+        }
+        script += `
+        try
+            set startDate to current date
+            set year of startDate to ${start.getFullYear()}
+            set month of startDate to ${start.getMonth() + 1}
+            set day of startDate to ${start.getDate()}
+            set hours of startDate to ${start.getHours()}
+            set minutes of startDate to ${start.getMinutes()}
+            set seconds of startDate to 0
+            
+            set endDate to current date
+            set year of endDate to ${end.getFullYear()}
+            set month of endDate to ${end.getMonth() + 1}
+            set day of endDate to ${end.getDate()}
+            set hours of endDate to ${end.getHours()}
+            set minutes of endDate to ${end.getMinutes()}
+            set seconds of endDate to 0
+            
+            set newEvent to make new event at end of events of myCalendar with properties {summary:"${title}", start date:startDate, end date:endDate}
+            if "${location}" is not "" then set location of newEvent to "${location}"
+            if "${description}" is not "" then set description of newEvent to "${description}"
+`;
+        if (event.reminderMinutesBefore && event.reminderMinutesBefore > 0) {
+          script += `
+            tell newEvent
+                make new display alarm at end of display alarms with properties {trigger interval:-${event.reminderMinutesBefore}}
+            end tell
+`;
+        }
+        script += `
+            set eventCount to eventCount + 1
+        end try
+`;
+      } else if (event.date) {
+        const [y, m, d] = event.date.split('-').map(Number);
+        script += `
+        try
+            set eventDate to current date
+            set year of eventDate to ${y}
+            set month of eventDate to ${m}
+            set day of eventDate to ${d}
+            set hours of eventDate to 9
+            set minutes of eventDate to 0
+            set seconds of eventDate to 0
+            
+            set newEvent to make new event at end of events of myCalendar with properties {summary:"${title}", start date:eventDate, allday event:true}
+            if "${location}" is not "" then set location of newEvent to "${location}"
+            if "${description}" is not "" then set description of newEvent to "${description}"
+            set eventCount to eventCount + 1
+        end try
+`;
+      } else {
+        script += `
+        try
+            set newEvent to make new event at end of events of myCalendar with properties {summary:"${title}"}
+            if "${location}" is not "" then set location of newEvent to "${location}"
+            if "${description}" is not "" then set description of newEvent to "${description}"
+            set eventCount to eventCount + 1
+        end try
+`;
+      }
+    });
+    script += `
+    end tell
+end try
+`;
+  }
+
+  if (enabledReminders.length > 0) {
+    script += `
+try
+    tell application "Reminders"
+        activate
+        set defaultList to default list
+`;
+    enabledReminders.forEach(rem => {
+      const title = applescriptEscape(rem.title);
+      const notes = applescriptEscape(rem.notes || '');
+
+      script += `
+        try
+            set newReminder to make new reminder at end of defaultList with properties {name:"${title}"}
+            if "${notes}" is not "" then set body of newReminder to "${notes}"
+`;
+      if (rem.dueDate) {
+        const due = new Date(rem.dueDate);
+        script += `
+            set dueDate to current date
+            set year of dueDate to ${due.getFullYear()}
+            set month of dueDate to ${due.getMonth() + 1}
+            set day of dueDate to ${due.getDate()}
+            set hours of dueDate to ${due.getHours() || 9}
+            set minutes of dueDate to ${due.getMinutes() || 0}
+            set seconds of dueDate to 0
+            set due date of newReminder to dueDate
+`;
+      }
+      script += `
+            set reminderCount to reminderCount + 1
+        end try
+`;
+    });
+    script += `
+    end tell
+end try
+`;
+  }
+
+  script += `
+set totalMsg to ""
+if eventCount > 0 then
+    set totalMsg to totalMsg & (eventCount as string) & " 个日历事件"
+end if
+if reminderCount > 0 then
+    if totalMsg is not "" then set totalMsg to totalMsg & " 和 "
+    set totalMsg to totalMsg & (reminderCount as string) & " 个提醒"
+end if
+
+display notification totalMsg with title "AI Calendar Assistant" subtitle "导入完成"
+display dialog "✅ 导入完成！" & return & return & totalMsg buttons {"好的"} default button 1 with icon note
+APPLESCRIPT
+
+echo ""
+echo "✅ 导入完成！"
+echo ""
+read -p "按回车键关闭窗口..."
+`;
+
+  return script;
+}
+
+function downloadICS() {
+  const ics = generateICS();
+  if (!ics) {
+    showToast('error', '没有可导出的内容');
+    return;
+  }
+
+  const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'ai-calendar-events.ics';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+
+  document.getElementById('successToast').style.display = 'flex';
+  setTimeout(() => {
+    document.getElementById('successToast').style.display = 'none';
+  }, 5000);
+
+  showToast('success', 'ICS 文件已下载，双击可导入日历');
+}
+
+// ============================================
+// History
+// ============================================
+function saveToHistory(text, result) {
+  const item = {
+    id: 'hist_' + Date.now(),
+    timestamp: Date.now(),
+    inputText: text,
+    summary: result.summary,
+    eventCount: result.events.filter(e => e.destination === 'calendar').length,
+    reminderCount: result.reminders.length + result.events.filter(e => e.destination === 'reminder').length,
+    ignoredCount: result.ignored_information.length
+  };
+  history.unshift(item);
+  if (history.length > 50) history = history.slice(0, 50);
+  localStorage.setItem('ai_calendar_history', JSON.stringify(history));
+}
+
+function renderHistory() {
+  const container = document.getElementById('historyList');
+  if (history.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <div class="icon">🕐</div>
+        <div class="title">暂无历史记录</div>
+        <div class="sub">你的分析历史会保存在这里</div>
+      </div>`;
+    return;
+  }
+
+  container.innerHTML = history.map(item => {
+    const date = new Date(item.timestamp);
+    return `
+      <div class="history-item" onclick="loadHistoryItem('${item.id}')">
+        <div class="history-summary">${escapeHtml(item.summary)}</div>
+        <div class="history-meta">
+          <span>📅 ${item.eventCount}</span>
+          <span>🔔 ${item.reminderCount}</span>
+          <span>🙈 ${item.ignoredCount}</span>
+        </div>
+        <div class="history-date">${date.toLocaleString('zh-CN')}</div>
+      </div>
+    `;
+  }).join('');
+}
+
+function loadHistoryItem(id) {
+  const item = history.find(h => h.id === id);
+  if (!item) return;
+  document.getElementById('inputText').value = item.inputText;
+  document.getElementById('inputText').dispatchEvent(new Event('input'));
+  switchPage('home', document.querySelectorAll('.sidebar-item')[0]);
+  showToast('info', '已载入历史记录，点击分析重新处理');
+}
+
+// ============================================
+// Helpers
+// ============================================
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+function escapeAttr(str) {
+  return String(str || '').replace(/"/g, '&quot;');
+}
+
+function formatDate(dateStr) {
+  try {
+    const d = new Date(dateStr);
+    return d.toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'short' });
+  } catch(e) { return dateStr; }
+}
+
+function formatTime(timeStr) {
+  try {
+    const d = new Date(timeStr);
+    return d.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit', hour12: false });
+  } catch(e) { return timeStr; }
+}
+
+function formatDateTime(dateTimeStr) {
+  try {
+    const d = new Date(dateTimeStr);
+    return d.toLocaleString('zh-CN', {
+      month: 'short', day: 'numeric',
+      hour: '2-digit', minute: '2-digit',
+      hour12: false
+    });
+  } catch(e) { return dateTimeStr; }
+}
+
+function extractTime(dateTimeStr) {
+  if (!dateTimeStr) return '';
+  const parts = dateTimeStr.split('T');
+  if (parts.length < 2) return '';
+  return parts[1].substring(0, 5);
+}
+
+function showLoading() {
+  document.getElementById('loadingOverlay').classList.add('active');
+}
+
+function hideLoading() {
+  document.getElementById('loadingOverlay').classList.remove('active');
+}
+
+function showToast(type, message) {
+  const toast = document.getElementById('toast');
+  const icon = document.getElementById('toastIcon');
+  const text = document.getElementById('toastText');
+
+  toast.className = 'toast ' + type;
+  icon.textContent = type === 'success' ? '✅' : type === 'error' ? '❌' : 'ℹ️';
+  text.textContent = message;
+
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 3000);
+}
+
+// Init: update button state
+document.getElementById('btnAnalyze').disabled = !apiKey;
+
+// Shortcut: Cmd/Ctrl+Enter to analyze
+document.addEventListener('keydown', function(e) {
+  if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+    const activePage = document.querySelector('.page.active').id;
+    if (activePage === 'page-home') {
+      analyzeText();
+    } else if (activePage === 'page-analysis') {
+      createAll();
+    }
+  }
+});
+</script>
+
+<!-- Chart.js 用于效率看板图表 -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<!-- 数据标签插件：在图表上显示具体数值 -->
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+
+<!-- 效率看板逻辑 -->
+<script>
+  // 注册数据标签插件
+  if (window.ChartDataLabels) Chart.register(ChartDataLabels);
+
+  // Y轴顶部箭头插件（坐标轴风格：轴端带向上箭头，让 100% 数据点上方留出空间）
+  const yAxisArrowPlugin = {
+    id: 'yAxisArrow',
+    afterDraw(chart) {
+      const yAxis = chart.scales && chart.scales.y;
+      if (!yAxis) return;
+      const ctx = chart.ctx;
+      const x = yAxis.left;
+      const top = yAxis.top;
+      ctx.save();
+      ctx.fillStyle = '#94a3b8';
+      ctx.strokeStyle = '#94a3b8';
+      ctx.lineWidth = 1;
+      // 轴线向上延伸一小段
+      ctx.beginPath();
+      ctx.moveTo(x, top);
+      ctx.lineTo(x, top - 5);
+      ctx.stroke();
+      // 箭头三角形（向上）
+      ctx.beginPath();
+      ctx.moveTo(x, top - 11);   // 箭头尖
+      ctx.lineTo(x - 4.5, top - 4); // 左下
+      ctx.lineTo(x + 4.5, top - 4); // 右下
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+    }
+  };
+  Chart.register(yAxisArrowPlugin);
+
+  let dashboardData = null;
+  let trendChartInstance = null;
+  let categoryChartInstance = null;
+  let dailyChartInstance = null;
+  let resizeTimer = null;
+
+  window.addEventListener('resize', function() {
+    if (resizeTimer) clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(function() {
+      if (dashboardData && document.getElementById('page-dashboard').classList.contains('active')) {
+        if (trendChartInstance) trendChartInstance.resize();
+        if (categoryChartInstance) categoryChartInstance.resize();
+        if (dailyChartInstance) dailyChartInstance.resize();
+      }
+    }, 150);
+  });
+
+  // 切换到看板页面时自动加载
+  const origSwitchPage = switchPage;
+  switchPage = function(page, elem) {
+    origSwitchPage(page, elem);
+    if (page === 'dashboard') {
+      if (!dashboardData) {
+        refreshDashboard();
+      } else {
+        setTimeout(function() {
+          if (trendChartInstance) trendChartInstance.resize();
+          if (categoryChartInstance) categoryChartInstance.resize();
+          if (dailyChartInstance) dailyChartInstance.resize();
+        }, 50);
+      }
+    }
+  };
+
+  async function refreshDashboard() {
+    document.getElementById('dashboardLoading').style.display = 'block';
+    document.getElementById('dashboardContent').style.display = 'none';
+    document.getElementById('dashboardError').style.display = 'none';
+
+    try {
+      if (!isLocalMacMode) {
+        showDashboardError('网页版暂不读取 Mac 系统日历；分析历史仍保存在当前设备浏览器中。');
+        return;
+      }
+      const response = await fetch('http://localhost:19527/api/stats', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ days: 7 })
+      });
+      const result = await response.json();
+
+      if (!result.success) {
+        showDashboardError(result.message || '获取数据失败');
+        return;
+      }
+
+      dashboardData = result.data;
+      renderDashboard();
+    } catch (e) {
+      showDashboardError('无法连接服务器，请确认已双击「启动.command」');
+    }
+  }
+
+  function showDashboardError(msg) {
+    document.getElementById('dashboardLoading').style.display = 'none';
+    document.getElementById('dashboardError').style.display = 'block';
+    document.getElementById('dashboardError').textContent = msg;
+  }
+
+  function renderDashboard() {
+    document.getElementById('dashboardLoading').style.display = 'none';
+    document.getElementById('dashboardContent').style.display = 'block';
+
+    const data = dashboardData;
+    const summary = data.summary || {};
+
+    // 1. 今日概览
+    renderStatsOverview(summary);
+
+    // 2. 七日趋势图
+    renderTrendChart(data);
+
+    // 3. 分类分布
+    renderCategoryChart(data);
+
+    // 4. 每日任务量
+    renderDailyChart(data);
+
+    // 5. 即将到期任务
+    renderUpcomingList(data);
+  }
+
+  function renderStatsOverview(summary) {
+    const html = `
+      <div class="stat-block">
+        <div class="stat-icon blue">✅</div>
+        <div class="stat-num">${summary.todayCompleted || 0}</div>
+        <div class="stat-label">今日已完成</div>
+        <div class="stat-sub">完成率 ${summary.completionRate || 0}%</div>
+      </div>
+      <div class="stat-block">
+        <div class="stat-icon teal">⏳</div>
+        <div class="stat-num">${summary.todayPending || 0}</div>
+        <div class="stat-label">今日待办</div>
+        <div class="stat-sub">未完成项</div>
+      </div>
+      <div class="stat-block">
+        <div class="stat-icon orange">📌</div>
+        <div class="stat-num">${summary.tomorrowPending || 0}</div>
+        <div class="stat-label">明日待办</div>
+        <div class="stat-sub">明天到期</div>
+      </div>
+      <div class="stat-block">
+        <div class="stat-icon purple">⚠️</div>
+        <div class="stat-num">${summary.overdueCount || 0}</div>
+        <div class="stat-label">已逾期</div>
+        <div class="stat-sub">需立即处理</div>
+      </div>
+    `;
+    document.getElementById('statsOverview').innerHTML = html;
+  }
+
+  function getDateKey(dateStr) {
+    if (!dateStr) return null;
+    const d = new Date(dateStr);
+    if (isNaN(d)) return null;
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  }
+
+  function getRecent7Days() {
+    const days = [];
+    const today = new Date();
+    // 定位本周一（getDay: 0=周日, 1=周一, ..., 6=周六）
+    const dow = today.getDay();
+    const mondayOffset = dow === 0 ? -6 : 1 - dow;
+    const monday = new Date(today);
+    monday.setDate(today.getDate() + mondayOffset);
+    monday.setHours(0, 0, 0, 0);
+
+    const weekLabels = ['一', '二', '三', '四', '五', '六', '日'];
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(monday);
+      d.setDate(monday.getDate() + i);
+      days.push({
+        key: `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`,
+        label: '周' + weekLabels[i],
+        date: d
+      });
+    }
+    return days;
+  }
+
+  function renderTrendChart(data) {
+    const days = getRecent7Days();
+    const events = data.events || [];
+    const reminders = data.reminders || [];
+    const completed = data.completedReminders || [];
+
+    const rates = days.map(day => {
+      // 当日总任务 = 当日事件 + 当日提醒（截止在当日）+ 当日完成的提醒
+      const dayEvents = events.filter(e => getDateKey(e.startDate) === day.key);
+      const dayReminders = reminders.filter(r => getDateKey(r.dueDate) === day.key);
+      const dayCompleted = completed.filter(r => getDateKey(r.completedDate) === day.key);
+      const total = dayEvents.length + dayReminders.length + dayCompleted.length;
+      const done = dayCompleted.length + dayEvents.filter(e => e.isPast).length;
+      return total > 0 ? Math.round(done * 100 / total) : 0;
+    });
+
+    const ctx = document.getElementById('trendChart').getContext('2d');
+    if (trendChartInstance) trendChartInstance.destroy();
+
+    trendChartInstance = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: days.map(d => d.label),
+        datasets: [{
+          label: '完成率',
+          data: rates,
+          borderColor: '#3b82f6',
+          backgroundColor: 'rgba(59, 130, 246, 0.1)',
+          fill: true,
+          tension: 0.35,
+          pointBackgroundColor: '#3b82f6',
+          pointRadius: 3.5,
+          pointHoverRadius: 5.5
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        layout: { padding: { top: 44, bottom: 4 } },
+        plugins: {
+          legend: { display: false },
+          datalabels: {
+            anchor: 'end',
+            align: 'top',
+            offset: 4,
+            clip: false,
+            color: '#475569',
+            font: { weight: '600', size: 11 },
+            formatter: v => v + '%'
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            max: 100,
+            ticks: { callback: v => v + '%', color: '#94a3b8' },
+            grid: { color: 'rgba(148, 163, 184, 0.1)' }
+          },
+          x: { ticks: { color: '#94a3b8' }, grid: { display: false } }
+        }
+      }
+    });
+  }
+
+  function renderCategoryChart(data) {
+    const reminders = [...(data.reminders || []), ...(data.completedReminders || [])];
+    const events = data.events || [];
+
+    // 按日历/列表分类
+    const categories = {};
+    reminders.forEach(r => {
+      const cat = r.calendar || '其他';
+      categories[cat] = (categories[cat] || 0) + 1;
+    });
+    events.forEach(e => {
+      const cat = e.calendar || '其他';
+      categories[cat] = (categories[cat] || 0) + 1;
+    });
+
+    const labels = Object.keys(categories);
+    const values = Object.values(categories);
+    const colors = ['#3b82f6', '#06b6d4', '#0ea5e9', '#f97316', '#10b981', '#ec4899', '#64748b'];
+
+    const ctx = document.getElementById('categoryChart').getContext('2d');
+    if (categoryChartInstance) categoryChartInstance.destroy();
+
+    categoryChartInstance = new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels: labels,
+        datasets: [{
+          data: values,
+          backgroundColor: colors.slice(0, labels.length),
+          borderWidth: 2,
+          borderColor: 'rgba(255,255,255,0.8)'
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'bottom', labels: { color: '#475569', font: { size: 11 } } },
+          datalabels: {
+            color: '#ffffff',
+            font: { weight: '700', size: 13 },
+            textAlign: 'center',
+            clip: false,
+            formatter: (value, ctx) => {
+              const total = ctx.dataset.data.reduce((a, b) => a + b, 0);
+              if (!total) return '';
+              const pct = Math.round(value * 100 / total);
+              return value + '\n' + pct + '%';
+            }
+          }
+        },
+        cutout: '65%'
+      }
+    });
+  }
+
+  function renderDailyChart(data) {
+    const days = getRecent7Days();
+    const events = data.events || [];
+    const reminders = data.reminders || [];
+    const completed = data.completedReminders || [];
+
+    const doneData = days.map(day => {
+      const dayCompleted = completed.filter(r => getDateKey(r.completedDate) === day.key).length;
+      const dayEventsPast = events.filter(e => getDateKey(e.startDate) === day.key && e.isPast).length;
+      return dayCompleted + dayEventsPast;
+    });
+
+    const todoData = days.map(day => {
+      const dayReminders = reminders.filter(r => getDateKey(r.dueDate) === day.key).length;
+      const dayEventsUpcoming = events.filter(e => getDateKey(e.startDate) === day.key && !e.isPast).length;
+      return dayReminders + dayEventsUpcoming;
+    });
+
+    const ctx = document.getElementById('dailyChart').getContext('2d');
+    if (dailyChartInstance) dailyChartInstance.destroy();
+
+    dailyChartInstance = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: days.map(d => d.label),
+        datasets: [
+          { label: '已完成', data: doneData, backgroundColor: '#3b82f6', borderRadius: 6 },
+          { label: '待办', data: todoData, backgroundColor: '#dbeafe', borderRadius: 6 }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        layout: { padding: { top: 36, bottom: 4 } },
+        plugins: {
+          legend: { position: 'bottom', labels: { color: '#475569', font: { size: 11 } } },
+          datalabels: {
+            anchor: 'end',
+            align: 'top',
+            offset: 2,
+            clip: false,
+            color: '#475569',
+            font: { weight: '600', size: 11 },
+            formatter: v => v > 0 ? v : ''
+          }
+        },
+        scales: {
+          y: { beginAtZero: true, ticks: { color: '#94a3b8', precision: 0 }, grid: { color: 'rgba(148, 163, 184, 0.1)' } },
+          x: { ticks: { color: '#94a3b8' }, grid: { display: false } }
+        }
+      }
+    });
+  }
+
+  function renderUpcomingList(data) {
+    const now = new Date();
+    const tomorrow = new Date(now);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const tomorrowKey = getDateKey(tomorrow.toISOString());
+
+    // 合并未完成提醒和未开始事件
+    const items = [
+      ...(data.reminders || []).map(r => ({
+        title: r.title,
+        date: r.dueDate,
+        type: '提醒',
+        isPast: r.isPast,
+        isToday: r.isToday,
+        isTomorrow: r.isTomorrow
+      })),
+      ...(data.events || []).filter(e => !e.isPast).map(e => ({
+        title: e.title,
+        date: e.startDate,
+        type: '事件',
+        isPast: false,
+        isToday: e.isToday,
+        isTomorrow: getDateKey(e.startDate) === tomorrowKey
+      }))
+    ];
+
+    // 按紧急程度排序：已过期 > 今日 > 明日
+    items.sort((a, b) => {
+      const order = (x) => x.isPast ? 0 : (x.isToday ? 1 : (x.isTomorrow ? 2 : 3));
+      return order(a) - order(b);
+    });
+
+    const top = items.slice(0, 8);
+    const html = top.map(item => {
+      let dotClass = 'green';
+      let meta = '';
+      if (item.isPast) {
+        dotClass = 'red';
+        const d = new Date(item.date);
+        const diff = Math.floor((now - d) / 86400000);
+        meta = `已逾期 ${diff} 天 · ${item.type}`;
+      } else if (item.isToday) {
+        dotClass = 'orange';
+        const d = new Date(item.date);
+        meta = `今天 ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')} · ${item.type}`;
+      } else if (item.isTomorrow) {
+        dotClass = 'green';
+        const d = new Date(item.date);
+        meta = `明天 ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')} · ${item.type}`;
+      } else {
+        const d = new Date(item.date);
+        meta = `${d.getMonth()+1}月${d.getDate()}日 · ${item.type}`;
+      }
+      return `
+        <div class="upcoming-item">
+          <div class="upcoming-dot ${dotClass}"></div>
+          <div class="upcoming-main">
+            <div class="upcoming-title">${escapeHtml(item.title)}</div>
+            <div class="upcoming-meta">${meta}</div>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    document.getElementById('upcomingList').innerHTML = html || '<div style="text-align:center;color:var(--text-tertiary);padding:20px;">暂无待办任务</div>';
+  }
+
+  function escapeHtml(str) {
+    if (!str) return '';
+    return str.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+  }
+
+  async function generateInsight() {
+    if (!dashboardData) {
+      alert('请先加载数据');
+      return;
+    }
+    const apiKey = localStorage.getItem('deepseek_api_key') || '';
+    if (!apiKey) {
+      alert('请先在「设置」中填入 DeepSeek API Key');
+      return;
+    }
+
+    const insightEl = document.getElementById('insightContent');
+    insightEl.classList.add('loading');
+    insightEl.textContent = 'AI 正在分析本周效率...';
+
+    try {
+      if (!isLocalMacMode) {
+        insightEl.classList.remove('loading');
+        insightEl.textContent = '网页版暂不连接 Mac 本地日历服务。';
+        return;
+      }
+      const response = await fetch('http://localhost:19527/api/insight', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ stats: dashboardData, apiKey: apiKey })
+      });
+      const result = await response.json();
+
+      if (result.success) {
+        insightEl.classList.remove('loading');
+        insightEl.textContent = result.insight;
+      } else {
+        insightEl.classList.remove('loading');
+        insightEl.textContent = '生成失败：' + (result.message || '未知错误');
+      }
+    } catch (e) {
+      insightEl.classList.remove('loading');
+      insightEl.textContent = '网络错误，请确认服务器运行中';
+    }
+  }
+</script>
+
+</body>
+</html>
